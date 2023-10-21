@@ -1,0 +1,23 @@
+{
+    "name": "RK9 Showdown Converter",
+    "version": "1.0",
+    "description": "A Chrome Extension",
+    "manifest_version": 3,
+    "permissions": ["storage", "activeTab", "scripting", "tabs"],
+    "action": {
+      "default_popup": "hello.html",
+      "default_icon": "masterrankribbon.png"
+    },
+    "content_scripts": [
+      {
+        "matches": ["https://rk9.gg/*"],
+        "js": ["content.js"],
+        "run_at": "document_idle"
+      }
+    ],
+    "background": {
+      "service_worker": "background.js"
+    }
+    
+  }
+  
