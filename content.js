@@ -253,7 +253,7 @@ var teraDB = {
             // await selectValue(cookies, pokemonId, 'move4', 314);
             console.log("Pokemon added");
             hideLoadingOverlay(); // Hide loading overlay when the process is complete
-            location.reload();
+            //location.reload();
         });
 
         var cancelButton = document.createElement("button");
@@ -341,55 +341,73 @@ async function getBaseStats(pokemonName) {
 
   
 
+function getBaseStats(pokemon, evs, level, nature){
+
+        var ret = {'hp': 0, 'atk': 0, 'def': 0, 'spa': 0, 'spd': 0, 'spe': 0};
+    
+        var baseStats = pokedex[poke];
+        var nature = natures[nat];
+    
+        for (const [key, value] of Object.entries(baseStats)){
+            if (key == 'hp'){
+                var stat = Math.floor(((((2 * baseStats.hp) + (evs.hp/4) + ivs.hp) * level)/100) + level + 10);
+                ret['hp'] = stat;
+            } else {
+                var stat = Math.floor(Math.floor((((((2 * baseStats[key]) + (evs[key]/4) + ivs[key]) * level) / 100) + 5)) * nature[key]);
+                ret[key] = stat;
+            }
+        }
+    
+        return ret
+    
+    }
+
+
 // Function to remove the container
 function convertShowDownList(showDownListBox) {
+    const textContent = showDownListBox.value;
+    const lines = textContent.split('\n').map(line => line.trim());
 
-  const textContent = showDownListBox.value; // Directly get the value from the textarea
-  const lines = textContent.split('\n').map(line => line.trim());
-  
-  const filteredLines = lines.filter(line => !line.includes('Shiny: ')); // Remove shiny indication
-  
-  const firstLine = filteredLines[0].replace(/\s+\(M\)|\s+\(F\)/, ''); // Removing gender indications
-  const secondLine = filteredLines[1];
-  const thirdLine = filteredLines[2];
-  const fourthLine = filteredLines[3];
-  const fifthLine = filteredLines[4];
-  const sixthLine = filteredLines[5];
-  const seventhLine = filteredLines[6];
-  const eigthLine = filteredLines[7];
-  const ninethLine = filteredLines[8];
-  
-  const splitFirstLine = firstLine.split(/@\s+/);
-  
-  const pokemon = splitFirstLine[0].trim();
-  const item = splitFirstLine[1].trim();
-  const ability = secondLine.replace('Ability: ', '').trim();
-  const tera = thirdLine.replace('Tera Type: ','' ).trim()
+    // Remove gender and shiny indication
+    const filteredLines = lines.filter(line => !line.includes('Shiny: ')).map(line => line.replace(/\s+\(M\)|\s+\(F\)/, ''));
 
-  const evsString = fourthLine.replace('EVs: ', '');
-  
-  const evsArray = evsString.split('/').map(ev => ev.trim().split(' '));
-  const evsObject = Object.fromEntries(evsArray.map(([value, stat]) => [stat, parseInt(value)]));
-  
-  const evs = ['HP', 'Atk', 'Def', 'SpA', 'SpD', 'Spe'].map(stat => evsObject[stat] || 0);
+    // Extract nickname, pokemon, and item
+    let [firstLine, abilityLine, ...restLines] = filteredLines;
 
-  const nature = fifthLine.replace(' Nature', '').trim();
+    const match = /^(?:(.+?)\s*\(([^()]+)\)\s*|\s*([^@]+))?(?:@\s*(.+))?/.exec(firstLine);
+    const nickname = match[1] || "";
+    const pokemon = (match[2] || match[3] || "").trim();
+    const item = match[4] || "None";
+    
+    // Extract level, tera type, evs, and nature
+        const level = parseInt((restLines.find(line => line.startsWith("Level: ")) || "Level: 100").replace("Level: ", ""));
+        const tera = (restLines.find(line => line.startsWith("Tera Type: ")) || "Tera Type: None").replace("Tera Type: ", "");
+        const evsString = (restLines.find(line => line.startsWith("EVs: ")) || "EVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe").replace('EVs: ', '');
+        const nature = (restLines.find(line => /Nature$/.test(line)) || "Hardy Nature").replace(' Nature', '').trim();
+    
+        // Convert EVs string to array
+        const evsObject = Object.fromEntries(evsString.split('/').map(ev => ev.trim().split(' ')).map(([value, stat]) => [stat, parseInt(value)]));
+        const evs = ['HP', 'Atk', 'Def', 'SpA', 'SpD', 'Spe'].map(stat => evsObject[stat] || 0);
+    
+        // Extract IVs
+        const ivsString = (restLines.find(line => line.startsWith("IVs: ")) || "IVs: 31 HP / 31 Atk / 31 Def / 31 SpA / 31 SpD / 31 Spe").replace('IVs: ', '');
+        const ivsObject = Object.fromEntries(ivsString.split('/').map(iv => iv.trim().split(' ')).map(([value, stat]) => [stat, parseInt(value)]));
+        const ivs = ['HP', 'Atk', 'Def', 'SpA', 'SpD', 'Spe'].map(stat => ivsObject[stat] || 31);    
 
-  const attack1 = sixthLine.replace('- ', '').trim();
-  const attack2 = seventhLine.replace('- ', '').trim();
-  const attack3 = eigthLine.replace('- ', '').trim();
-  const attack4 = ninethLine.replace('- ', '').trim();
-
-  console.log(pokemon);
-  console.log(item);
-  console.log(tera);
-  console.log(ability);
-  console.log(evs);
-  console.log(nature);
-  console.log(attack1);
-  console.log(attack2);
-  console.log(attack3);
-  console.log(attack4);
+    // Extract attacks
+    const attacks = restLines.slice(restLines.findIndex(line => line.startsWith("- ")) || restLines.length).map(attack => attack.replace('- ', '').trim());
+    const ability = abilityLine.replace('Ability: ', '').trim()
+    // Logs for debugging
+    console.log(nickname);
+    console.log(pokemon);
+    console.log(item);
+    console.log(tera);
+    console.log(level);
+    console.log(ability);
+    console.log(evs);
+    console.log(ivs);
+    console.log(nature);
+    console.log(attacks);
 
   const baseStats = getBaseStats(pokemon);
   
