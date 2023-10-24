@@ -9,6 +9,8 @@
 // @grant        none
 // ==/UserScript==
 
+const { Pokedex } = require("pokeapi-js-wrapper");
+
 // Add this style to your script
 const overlayStyle = `
     position: fixed;
@@ -315,10 +317,36 @@ function hideLoadingOverlay() {
     }
 }
 
+
+async function getBaseStats(pokemonName) {
+    try {
+      const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName.toLowerCase()}/`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok ' + response.statusText);
+      }
+      const data = await response.json();
+      const stats = data.stats;
+  
+      // Mapping the names used by the API to the order you want
+      const statOrder = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed'];
+      const baseStats = statOrder.map(statName => {
+        const stat = stats.find(s => s.stat.name === statName);
+        return stat ? stat.base_stat : 0;
+      });
+  
+      console.log('Base Stats:', baseStats);
+      return baseStats;
+    } catch (error) {
+      console.error('There has been a problem with your fetch operation:', error);
+    }
+  }
+
+  
+
 // Function to remove the container
 function convertShowDownList(showDownListBox) {
 
-  const pokeData = document.getElementById('textarea');
+  const pokeData = document.getElementById('textarea').value;
   const textContent = pokeData.textContent || pokeData.innerText;
   const lines = textContent.split('\n').map(line => line.trim());
   
@@ -365,6 +393,12 @@ function convertShowDownList(showDownListBox) {
   console.log(attack2);
   console.log(attack3);
   console.log(attack4);
+
+  const baseStats = getBaseStats(pokemon);
+  
+  const rk9Stats = getTrueStats(baseStats, nature, evs)
+
+  
 
   // await setValue(cookies, pokemonId, 'name', 'testname');
             // await setValue(cookies, pokemonId, 'level', 100);
