@@ -1,4 +1,4 @@
-const rk9PagePrefix = "https://rk9.gg/teamlist/editor/";
+const rk9PagePrefix = "https://rk9.gg/teamlist/index/";
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   updateBadge(tab);

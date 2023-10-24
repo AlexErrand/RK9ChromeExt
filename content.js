@@ -9,8 +9,6 @@
 // @grant        none
 // ==/UserScript==
 
-const { Pokedex } = require("pokeapi-js-wrapper");
-
 // Add this style to your script
 const overlayStyle = `
     position: fixed;
@@ -198,7 +196,7 @@ var teraDB = {
 
 }
 
-(function() {
+;(function() {
     'use strict';
     var cookies = document.cookie;
     console.log("Cookie:", cookies);
@@ -231,7 +229,7 @@ var teraDB = {
         convertButton.innerText = "Convert List";
         convertButton.addEventListener("click", async function() {
             showLoadingOverlay(); // Show loading overlay
-            convertShowDownList(showDownListBox)
+            convertShowDownList(showDownListBox);
 
             // var pokemonId = await addPokemon(cookies);
             // if (pokemonId == "" ) {
@@ -346,8 +344,7 @@ async function getBaseStats(pokemonName) {
 // Function to remove the container
 function convertShowDownList(showDownListBox) {
 
-  const pokeData = document.getElementById('textarea').value;
-  const textContent = pokeData.textContent || pokeData.innerText;
+  const textContent = showDownListBox.value; // Directly get the value from the textarea
   const lines = textContent.split('\n').map(line => line.trim());
   
   const filteredLines = lines.filter(line => !line.includes('Shiny: ')); // Remove shiny indication
@@ -396,7 +393,7 @@ function convertShowDownList(showDownListBox) {
 
   const baseStats = getBaseStats(pokemon);
   
-  const rk9Stats = getTrueStats(baseStats, nature, evs)
+  //const rk9Stats = getTrueStats(baseStats, nature, evs)
 
   
 
