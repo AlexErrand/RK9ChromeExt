@@ -2,11 +2,13 @@ import { Koffing } from './koff.mjs';
 import { Pokedex } from './pokedex.js';
 import { Natures } from './natures.js';
 import { PokeTranslator } from './TranslatorPokes.js';
+import { SpritesLink } from './sprites.js';
 
 // Global variables
 var pokedex = Pokedex();
 var natures = Natures();
 var pokeTranslator = PokeTranslator();
+var spritesLink = SpritesLink();
 var pokemonMap = '';
 var teraMap = '';
 var abilityMap = '';
@@ -34,6 +36,8 @@ width: 498px; /* Adjust the size as needed */
 height: 305px; /* Adjust the size as needed */`;
 
 export function main() {
+    updateSprites();
+
     // Create a new button element
     var showDownButton = document.createElement("button");
     showDownButton.innerText = "Load Showdown List";
@@ -67,7 +71,7 @@ export function main() {
         function updateButtonState() {
             const inputValue = showDownListBox.value.trim();
             convertButton.disabled = inputValue === "";
-            convertButton.style.backgroundColor = inputValue !== "" ? "red" : "gray";
+            convertButton.style.backgroundColor = inputValue !== "" ? "lightblue" : "gray";
         }
         
         // Add input event listener to text area
@@ -516,3 +520,27 @@ function getDuration(startTime) {
     return minutes + "m " + seconds + "s " + milliseconds + "ms";
 }
 
+function updateSprites(){
+    // Get all the div elements with the class "pokemon"
+    var pokemonDivs = document.querySelectorAll(".pokemon");
+
+    // Loop through each div element
+    pokemonDivs.forEach(function(div) {
+        // Get the data attributes for data-number and data-form
+        var dataNumber = div.getAttribute("data-number");
+        var dataForm = div.getAttribute("data-form");
+        
+        // Create a new img link based on data-number and data-form
+        var newImgLink = "https://www.serebii.net/pokemon/art/"+dataNumber+".png";
+
+        var index = dataNumber+"_"+dataForm;
+        if (spritesLink[index])
+            newImgLink = spritesLink[index];
+        
+        // Reset the margin height for the img
+        var imgElement = div.querySelector("img");
+        imgElement.src = newImgLink;
+        imgElement.style.margin = "0"; // Set margin to 0px
+        imgElement.style.height = "128px" // Set height to 128px
+    });
+}
