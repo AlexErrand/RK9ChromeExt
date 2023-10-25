@@ -57,18 +57,6 @@ export function main() {
         showDownListBox.cols = 50; // Set the number of columns (width)
         showDownListBox.style.borderRadius = "5px";
         showDownListBox.style.overflowY = "scroll"; // Add a scrollbar to the text area
-        showDownListBox.addEventListener("keyup", function () {
-            const inputValue = showDownListBox.value.trim();
-
-            // Check if there's some input in the text box to enable/disable the button
-            if (inputValue !== "") {
-                convertButton.disabled = false; // Enable the button
-                convertButton.style.backgroundColor = "lightblue";
-            } else {
-                convertButton.disabled = true; // Disable the button
-                convertButton.style.backgroundColor = "gray";
-            }
-        });
 
         // Create a container div for the buttons
         var buttonContainer = document.createElement("div");
@@ -79,9 +67,21 @@ export function main() {
         // Create "Convert List" and "Cancel" buttons
         var convertButton = document.createElement("button");
         convertButton.innerText = "Convert List";
-        convertButton.disabled = true;
+        convertButton.disabled = false;
         convertButton.className = "btn btn-sm btn-primary mx-2"; // Add the desired classes
-        convertButton.style.backgroundColor = "gray";
+        convertButton.style.backgroundColor = "red";
+        showDownListBox.addEventListener("keyup", function () {
+            const inputValue = showDownListBox.value.trim();
+
+            //* Check if there's some input in the text box to enable/disable the button
+            if (inputValue !== "") {
+                convertButton.disabled = false; // Enable the button
+                convertButton.style.backgroundColor = "red";
+            } else {
+                convertButton.disabled = true; // Disable the button
+                convertButton.style.backgroundColor = "gray";
+            }
+        });
         convertButton.addEventListener("click", async function () {
             showLoadingOverlay(); // Show loading overlay
             try {
