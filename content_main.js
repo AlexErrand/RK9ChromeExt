@@ -46,16 +46,41 @@ export function main() {
         showDownButton.style.backgroundColor = "gray";
 
         var showDownContainer = document.createElement("div");
+        showDownContainer.style.marginTop = "1em"; // Adjust the margin as needed
+        showDownContainer.style.display = "flex"; // Set the container to use flex layout
+        showDownContainer.style.alignItems = "flex-end"; // Align items vertically in the center
 
         // Create a new text box
         var showDownListBox = document.createElement("textarea");
         showDownListBox.rows = 20; // Set the number of rows
         showDownListBox.cols = 50; // Set the number of columns (width)
+        showDownListBox.style.borderRadius = "5px";
         showDownListBox.style.overflowY = "scroll"; // Add a scrollbar to the text area
+        showDownListBox.addEventListener("keyup", function () {
+            const inputValue = showDownListBox.value.trim();
+
+            // Check if there's some input in the text box to enable/disable the button
+            if (inputValue !== "") {
+                convertButton.disabled = false; // Enable the button
+                convertButton.style.backgroundColor = "lightblue";
+            } else {
+                convertButton.disabled = true; // Disable the button
+                convertButton.style.backgroundColor = "gray";
+            }
+        });
+
+        // Create a container div for the buttons
+        var buttonContainer = document.createElement("div");
+        buttonContainer.style.display = "flex"; // Set the container to use flex layout
+        buttonContainer.style.flexDirection = "column";
+        buttonContainer.style.marginLeft = "0.5em"; // Adjust the margin as needed
 
         // Create "Convert List" and "Cancel" buttons
         var convertButton = document.createElement("button");
         convertButton.innerText = "Convert List";
+        convertButton.disabled = true;
+        convertButton.className = "btn btn-sm btn-primary mx-2"; // Add the desired classes
+        convertButton.style.backgroundColor = "gray";
         convertButton.addEventListener("click", async function () {
             showLoadingOverlay(); // Show loading overlay
             try {
@@ -70,6 +95,9 @@ export function main() {
 
         var cancelButton = document.createElement("button");
         cancelButton.innerText = "Cancel";
+        cancelButton.className = "btn btn-sm btn-primary mx-2"; // Add the desired classes
+        cancelButton.style.backgroundColor = "lightblue";
+        cancelButton.style.marginTop = "0.5em"; // Adjust the margin as needed
         cancelButton.addEventListener("click", function () {
             showDownContainer.parentNode.removeChild(showDownContainer);
             showDownButton.disabled = false; // Re-enable the "New Button"
@@ -79,9 +107,12 @@ export function main() {
         // Append the text box to the container
         showDownContainer.appendChild(showDownListBox);
 
-        // Append the "Convert List" and "Cancel" buttons to the container
-        showDownContainer.appendChild(convertButton);
-        showDownContainer.appendChild(cancelButton);
+        // Append both buttons to the buttonContainer
+        buttonContainer.appendChild(convertButton);
+        buttonContainer.appendChild(cancelButton);
+
+        // Append the buttonContainer to the showDownContainer
+        showDownContainer.appendChild(buttonContainer);
 
         // Insert the text box after the button
         showDownButton.parentNode.insertBefore(showDownContainer, showDownButton.nextSibling);
@@ -93,27 +124,50 @@ export function main() {
 
 function showLoadingOverlay() {
     const overlay = document.createElement("div");
-    overlay.id = "loading-overlay"
+    overlay.id = "loading-overlay";
     overlay.style = overlayStyle;
+
+    const container = document.createElement("div");
+    container.style.display = "flex";
+    container.style.flexDirection = "column";
 
     const loadingImage = document.createElement("img");
     loadingImage.src = "https://media.tenor.com/8vuqpD3Ir-IAAAAC/catching-pokemon.gif"; // Replace with the URL of your loading image
     loadingImage.style = loadingImageStyle;
 
-    var messageElement = document.createElement("p");
+    const messageElement = document.createElement("p");
     messageElement.style.color = "white";
-    messageElement.style.marginTop = "2em";
+    messageElement.style.marginTop = "0.5em"; // Adjust the margin as needed
 
-    overlay.appendChild(loadingImage);
-    overlay.appendChild(messageElement);
+    const messageElement2 = document.createElement("p");
+    messageElement2.style.color = "white";
+    messageElement2.style.marginTop = "0.5em"; // Adjust the margin as needed
+
+    container.appendChild(loadingImage);
+    container.appendChild(messageElement);
+    container.appendChild(messageElement2);
+
+    overlay.appendChild(container);
     document.body.appendChild(overlay);
 }
 
-function updateLoadingOverlay(message) {
+function updateLoadingOverlayPokemon(message) {
     var loadingOverlay = document.getElementById("loading-overlay");
 
     if (loadingOverlay) {
         var messageElement = loadingOverlay.querySelector("p");
+        if (messageElement) {
+            messageElement.innerText = message;
+        }
+
+    }
+}
+
+function updateLoadingOverlayProgress(message) {
+    var loadingOverlay = document.getElementById("loading-overlay");
+
+    if (loadingOverlay) {
+        var messageElement = loadingOverlay.querySelectorAll("p")[1];
         if (messageElement) {
             messageElement.innerText = message;
         }
@@ -247,7 +301,7 @@ async function convertShowDownList(paste) {
         console.log('move3: ' + move3 + '(' + move3Id + ')');
         console.log('move4: ' + move4 + '(' + move4Id + ')');
 
-        var pokeToken = await addPokemon();
+        var pokeToken = await addPokemon(pokemon);
         if (pokeToken == "") {
             return;
         }
@@ -273,7 +327,7 @@ async function convertShowDownList(paste) {
     }
 }
 
-async function addPokemon() {
+async function addPokemon(pokemon) {
     // Define the URL and headers
     const postUrl = "https://rk9.gg/teamlist/add";
     const headers = {
@@ -293,7 +347,7 @@ async function addPokemon() {
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        updateLoadingOverlay("Add pokemon");
+        updateLoadingOverlayPokemon("Adding " + pokemon + "...");
         return response.text();
     } catch (error) {
         console.error("Error:", error);
@@ -331,7 +385,7 @@ async function setValue(pokemonId, field, value) {
             if (responseData.msg !== "ok") {
                 throw new Error("Response does not contain 'msg' or it's not 'ok'");
             }
-            updateLoadingOverlay("Set " + field + " -> " + value);// Response data captured in the 'data' variable
+            updateLoadingOverlayProgress("Set " + field + " -> " + value);// Response data captured in the 'data' variable
         } catch (error) {
             console.error("Error:", error);
         }
@@ -369,7 +423,7 @@ async function selectValue(pokemonId, field, value) {
             if (responseData.msg !== "ok") {
                 throw new Error("Response does not contain 'msg' or it's not 'ok'");
             }
-            updateLoadingOverlay("Select " + field + " -> " + value);// Response data captured in the 'data' variable
+            updateLoadingOverlayProgress("Select " + field + " -> " + value);// Response data captured in the 'data' variable
         } catch (error) {
             console.error("Error:", error);
         }
