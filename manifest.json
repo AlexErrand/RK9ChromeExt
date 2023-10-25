@@ -8,11 +8,15 @@
   "content_scripts": [
     {
       "matches": ["https://rk9.gg/*"],
-      "js": ["content.js"],
+      "js": ["content_script.js"],
       "run_at": "document_end"
     }
   ],
   "icons": {
     "48": "masterrankribbon.png"
-  }
+  },
+  "web_accessible_resources": [{
+    "matches": ["https://rk9.gg/*"],
+    "resources": ["*"]
+  }]
 }
