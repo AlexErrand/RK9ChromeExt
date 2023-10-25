@@ -3,10 +3,16 @@ import { Pokedex } from './pokedex.js';
 import { Natures } from './natures.js';
 import { PokeTranslator } from './TranslatorPokes.js';
 
-
+// Global variables
 var pokedex = Pokedex();
 var natures = Natures();
 var pokeTranslator = PokeTranslator();
+var pokemonMap = '';
+var teraMap = '';
+var abilityMap = '';
+var itemMap = '';
+var moveMap = '';
+
 var cookies = document.cookie;
 console.log("Cookie:", cookies);
 
@@ -28,7 +34,6 @@ width: 498px; /* Adjust the size as needed */
 height: 305px; /* Adjust the size as needed */`;
 
 export function main() {
-
     // Create a new button element
     var showDownButton = document.createElement("button");
     showDownButton.innerText = "Load Showdown List";
@@ -160,7 +165,6 @@ function updateLoadingOverlayPokemon(message) {
         if (messageElement) {
             messageElement.innerText = message;
         }
-
     }
 }
 
@@ -181,7 +185,6 @@ function hideLoadingOverlay() {
         document.body.removeChild(overlay);
     }
 }
-
 
 // async function getBaseStats(pokemonName) {
 //     try {
@@ -207,7 +210,6 @@ function hideLoadingOverlay() {
 // }
 
 function getStats(poke, ivs, evs, level, nat) {
-
     var ret = { 'hp': 0, 'atk': 0, 'def': 0, 'spa': 0, 'spd': 0, 'spe': 0 };
 
     var baseStats = pokedex[poke];
@@ -224,17 +226,10 @@ function getStats(poke, ivs, evs, level, nat) {
     }
 
     return ret
-
 }
 
 // Function to remove the container
 async function convertShowDownList(paste) {
-    var pokemonMap = await getRk9FieldMap("pokemon");
-    var teraMap = await getRk9FieldMap("teratype");
-    var abilityMap = await getRk9FieldMap("ability");
-    var itemMap = await getRk9FieldMap("helditem");
-    var moveMap = await getRk9FieldMap("move");
-
     var parsedTeam = Koffing.parse(paste);
 
     var pokes = parsedTeam.teams[0].pokemon;
@@ -242,12 +237,9 @@ async function convertShowDownList(paste) {
     for (let i = 0; i < pokes.length; i++) {
         var pokemon = pokes[i].name;
         var ability = pokes[i].ability;
-        var abilityId = await getId(ability, abilityMap)
         var teraType = pokes[i].teraType;
-        var teraTypeId = await getId(teraType, teraMap)
         var nickname = pokes[i].nickname;
         var item = pokes[i].item
-        var itemId = await getId(item, itemMap)
         var nature = pokes[i].nature;
 
         var level = 100;
@@ -271,24 +263,46 @@ async function convertShowDownList(paste) {
 
         var stats = getStats(pokemon, ivs, evs, level, nature);
 
+        var move1 = pokes[i].moves[0];
+        var move2 = pokes[i].moves[1];
+        var move3 = pokes[i].moves[2];
+        var move4 = pokes[i].moves[3];
+
+        var startTime = new Date().getTime(); // Get the current time
+        console.log('============== Adding Pokemon ' + pokemon + ' ============');
+        var pokeToken = await addPokemon(pokemon);
+        if (pokeToken == "") {
+            return;
+        }
+
+        if (pokemonMap == '')
+            pokemonMap = await getRk9FieldMap(pokeToken, "pokemon");
+        if (teraMap == '')
+            teraMap = await getRk9FieldMap(pokeToken, "teratype");
+        if (abilityMap == '')
+            abilityMap = await getRk9FieldMap(pokeToken, "ability");
+        if (itemMap == '')
+            itemMap = await getRk9FieldMap(pokeToken, "helditem");
+        if (moveMap == '')
+            moveMap = await getRk9FieldMap(pokeToken, "move");
+
+        var abilityId = await getId(ability, abilityMap)
+        var teraTypeId = await getId(teraType, teraMap)
+        var itemId = await getId(item, itemMap)
+        var move1Id = await getId(move1, moveMap)
+        var move2Id = await getId(move2, moveMap)
+        var move3Id = await getId(move3, moveMap)
+        var move4Id = await getId(move4, moveMap)
+
         // If RK9 uses different ID, we can't automatically find the name
         // user need to manually choose the pokemon from RK9
         var pokemonId = pokeTranslator[pokemon]
         if (!pokemonId in pokemonMap)
             pokemonId = ''
 
-        var move1 = pokes[i].moves[0];
-        var move1Id = await getId(move1, moveMap)
-        var move2 = pokes[i].moves[1];
-        var move2Id = await getId(move2, moveMap)
-        var move3 = pokes[i].moves[2];
-        var move3Id = await getId(move3, moveMap)
-        var move4 = pokes[i].moves[3];
-        var move4Id = await getId(move4, moveMap)
-
         // Logs for debuggin
-        console.log('nickname: ' + nickname);
         console.log('pokemon: ' + pokemon + '(' + pokemonId + ')');
+        console.log('nickname: ' + nickname);
         console.log('item: ' + item + '(' + itemId + ')');
         console.log('teraType: ' + teraType + '(' + teraTypeId + ')');
         console.log('level: ' + level);
@@ -301,12 +315,6 @@ async function convertShowDownList(paste) {
         console.log('move2: ' + move2 + '(' + move2Id + ')');
         console.log('move3: ' + move3 + '(' + move3Id + ')');
         console.log('move4: ' + move4 + '(' + move4Id + ')');
-
-        var pokeToken = await addPokemon(pokemon);
-        if (pokeToken == "") {
-            return;
-        }
-
         await setValue(pokeToken, 'name', nickname);
         await setValue(pokeToken, 'level', level);
         await setValue(pokeToken, 'hp', stats.hp);
@@ -324,7 +332,15 @@ async function convertShowDownList(paste) {
         await selectValue(pokeToken, 'move3', move3Id);
         await selectValue(pokeToken, 'move4', move4Id);
 
-        console.log('Pokemon ' + pokemon + ' added');
+        var elapsedTime = new Date().getTime() - startTime; // Calculate elapsed time in milliseconds
+        // Format the elapsed time into a user-friendly format (e.g., minutes:seconds)
+        var minutes = Math.floor(elapsedTime / 60000);
+        var seconds = Math.floor((elapsedTime % 60000) / 1000);
+        var milliseconds = elapsedTime % 1000;
+
+        // Display the timer in the desired format
+        var duration = minutes + "m " + seconds + "s " + milliseconds + "ms";
+        console.log('!!!!!!!!Pokemon ' + pokemon + ' added!!!!!!!! (' + duration + ')');
     }
 }
 
@@ -431,14 +447,14 @@ async function selectValue(pokemonId, field, value) {
     }
 }
 
-async function getRk9FieldMap(field) {
+async function getRk9FieldMap(token, field) {
     // check session storage first
     var storageValue = null;
     if (sessionStorage.getItem(field)) {
         storageValue = JSON.parse(sessionStorage.getItem(field));
     }
     else {
-        const getUrl = "https://rk9.gg/teamlist/select?lang=EN&id=123-" + field;
+        const getUrl = "https://rk9.gg/teamlist/select?lang=EN&id=" + token + "-" + field;
         const headers = {
             "Cookie": cookies
         };
