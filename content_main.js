@@ -14,7 +14,7 @@ var itemMap = '';
 var moveMap = '';
 
 var cookies = document.cookie;
-console.log("Cookie:", cookies);
+//console.log("Cookie:", cookies);
 
 // Add this style to your script
 const overlayStyle = `
@@ -88,6 +88,7 @@ export function main() {
         convertButton.className = "btn btn-sm btn-primary mx-2"; // Add the desired classes
         convertButton.style.backgroundColor = "gray";
         convertButton.addEventListener("click", async function () {
+            var startTime = new Date().getTime(); // Get the current time
             showLoadingOverlay(); // Show loading overlay
             try {
                 await convertShowDownList(showDownListBox.value);
@@ -96,6 +97,7 @@ export function main() {
             };
 
             hideLoadingOverlay(); // Hide loading overlay when the process is complete
+            console.log("Totally taken " + getDuration(startTime));
             location.reload();
         });
 
@@ -332,15 +334,8 @@ async function convertShowDownList(paste) {
         await selectValue(pokeToken, 'move3', move3Id);
         await selectValue(pokeToken, 'move4', move4Id);
 
-        var elapsedTime = new Date().getTime() - startTime; // Calculate elapsed time in milliseconds
-        // Format the elapsed time into a user-friendly format (e.g., minutes:seconds)
-        var minutes = Math.floor(elapsedTime / 60000);
-        var seconds = Math.floor((elapsedTime % 60000) / 1000);
-        var milliseconds = elapsedTime % 1000;
-
         // Display the timer in the desired format
-        var duration = minutes + "m " + seconds + "s " + milliseconds + "ms";
-        console.log('!!!!!!!!Pokemon ' + pokemon + ' added!!!!!!!! (' + duration + ')');
+        console.log('!!!!!!!!Pokemon ' + pokemon + ' Added!!!!!!!! (' + getDuration(startTime) + ')');
     }
 }
 
@@ -498,3 +493,15 @@ async function getId(targetValue, fieldMap) {
 
     return resultKey
 }
+
+function getDuration(startTime) {
+    var elapsedTime = new Date().getTime() - startTime; // Calculate elapsed time in milliseconds
+    // Format the elapsed time into a user-friendly format (e.g., minutes:seconds)
+    var minutes = Math.floor(elapsedTime / 60000);
+    var seconds = Math.floor((elapsedTime % 60000) / 1000);
+    var milliseconds = elapsedTime % 1000;
+
+    // Display the timer in the desired format
+    return minutes + "m " + seconds + "s " + milliseconds + "ms";
+}
+
