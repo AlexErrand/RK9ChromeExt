@@ -62,6 +62,22 @@ export function main() {
         showDownListBox.cols = 50; // Set the number of columns (width)
         showDownListBox.style.borderRadius = "5px";
         showDownListBox.style.overflowY = "scroll"; // Add a scrollbar to the text area
+        
+
+        function updateButtonState() {
+            const inputValue = showDownListBox.value.trim();
+            convertButton.disabled = inputValue === "";
+            convertButton.style.backgroundColor = inputValue !== "" ? "red" : "gray";
+        }
+        
+        // Add input event listener to text area
+        showDownListBox.addEventListener("input", updateButtonState);
+        
+        // Append the text area to the document body (or another container element)
+        document.body.appendChild(showDownListBox);
+        
+
+        
 
         // Create a container div for the buttons
         var buttonContainer = document.createElement("div");
@@ -69,24 +85,19 @@ export function main() {
         buttonContainer.style.flexDirection = "column";
         buttonContainer.style.marginLeft = "0.5em"; // Adjust the margin as needed
 
-        // Create "Convert List" and "Cancel" buttons
+        document.body.appendChild(buttonContainer);
+
         var convertButton = document.createElement("button");
         convertButton.innerText = "Convert List";
-        convertButton.disabled = false;
-        convertButton.className = "btn btn-sm btn-primary mx-2"; // Add the desired classes
-        convertButton.style.backgroundColor = "red";
-        showDownListBox.addEventListener("keyup", function () {
-            const inputValue = showDownListBox.value.trim();
+        convertButton.className = "btn btn-sm btn-primary mx-2";
 
-            //* Check if there's some input in the text box to enable/disable the button
-            if (inputValue !== "") {
-                convertButton.disabled = false; // Enable the button
-                convertButton.style.backgroundColor = "red";
-            } else {
-                convertButton.disabled = true; // Disable the button
-                convertButton.style.backgroundColor = "gray";
-            }
-        });
+        // Append the button to the button container
+        buttonContainer.appendChild(convertButton);
+
+        // Set initial state of the button
+        updateButtonState();
+        
+
         convertButton.addEventListener("click", async function () {
             var startTime = new Date().getTime(); // Get the current time
             showLoadingOverlay(); // Show loading overlay
