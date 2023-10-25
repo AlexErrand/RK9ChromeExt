@@ -72,16 +72,17 @@ export function main() {
         // Create "Convert List" and "Cancel" buttons
         var convertButton = document.createElement("button");
         convertButton.innerText = "Convert List";
-        convertButton.disabled = false;
+        convertButton.disabled = true;
         convertButton.className = "btn btn-sm btn-primary mx-2"; // Add the desired classes
-        convertButton.style.backgroundColor = "red";
+        convertButton.style.backgroundColor = "gray";
+
         showDownListBox.addEventListener("keyup", function () {
             const inputValue = showDownListBox.value.trim();
 
             //* Check if there's some input in the text box to enable/disable the button
             if (inputValue !== "") {
                 convertButton.disabled = false; // Enable the button
-                convertButton.style.backgroundColor = "red";
+                convertButton.style.backgroundColor = "lightblue";
             } else {
                 convertButton.disabled = true; // Disable the button
                 convertButton.style.backgroundColor = "gray";
