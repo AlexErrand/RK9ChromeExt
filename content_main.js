@@ -382,8 +382,9 @@ function getStats(poke, ivs, evs, level, nat) {
 
 }
 
+    
 // Function to remove the container
-function convertShowDownList(paste) {
+async function convertShowDownList(paste) {
     var parsedTeam = Koffing.parse(paste);
 
     var pokes = parsedTeam.teams[0].pokemon;
@@ -476,25 +477,56 @@ function convertShowDownList(paste) {
         // const baseStats = getBaseStats(nameId);
 
         //const rk9Stats = getTrueStats(baseStats, nature, evs)
-
-
-
-        // await setValue(cookies, pokemonId, 'name', 'testname');
-        // await setValue(cookies, pokemonId, 'level', 100);
-        // await setValue(cookies, pokemonId, 'hp', 50);
-        // await setValue(cookies, pokemonId, 'attack', 100);
-        // await setValue(cookies, pokemonId, 'defense', 150);
-        // await setValue(cookies, pokemonId, 'spatk', 200);
-        // await setValue(cookies, pokemonId, 'spdef', 250);
-        // await setValue(cookies, pokemonId, 'speed', 300);
-        // await selectValue(cookies, pokemonId, 'pokemon', '478_000');
-        // await selectValue(cookies, pokemonId, 'teratype', 'Fighting');
-        // await selectValue(cookies, pokemonId, 'ability', 71);
-        // await selectValue(cookies, pokemonId, 'helditem', 102);
-        // await selectValue(cookies, pokemonId, 'move1', 51);
-        // await selectValue(cookies, pokemonId, 'move2', 155);
-        // await selectValue(cookies, pokemonId, 'move3', 238);
-        // await selectValue(cookies, pokemonId, 'move4', 314);
+        var cookies = document.cookie;
+        var pokemonId = await addPokemon(cookies);
+            if (pokemonId == "" ) {
+                 return;
+            }
+        
+    
+        await setValue(cookies, pokemonId, 'name', name);
+        await setValue(cookies, pokemonId, 'level', level);
+        await setValue(cookies, pokemonId, 'hp', stats.hp);
+        await setValue(cookies, pokemonId, 'attack', stats.atk);
+        await setValue(cookies, pokemonId, 'defense', stats.def);
+        await setValue(cookies, pokemonId, 'spatk', stats.spa);
+        await setValue(cookies, pokemonId, 'spdef', stats.spd);
+        await setValue(cookies, pokemonId, 'speed', stats.spe);
+        await selectValue(cookies, pokemonId, 'teratype', teraType);
+        
+        const reversedPokemonDB = Object.fromEntries(
+            Object.entries(pokemonDB).map(([key, value]) => [value, key])
+          );
+          // Look up the ID and reassign the name variable if found, otherwise keep the original name
+        const reversedAbilityDB = Object.fromEntries(
+            Object.entries(abilityDB).map(([key, value]) => [value, key])
+          );
+        const reversedItemDB = Object.fromEntries(
+            Object.entries(itemDB).map(([key, value]) => [value, key])
+          );
+        const reversedMoveDB = Object.fromEntries(
+            Object.entries(moveDB).map(([key, value]) => [value, key])
+          );
+    
+        
+          name = reversedPokemonDB[name];
+          ability = reversedAbilityDB[ability];
+          item = reversedItemDB[item];
+          move1 = reversedMoveDB[move1];
+          move2 = reversedMoveDB[move2];
+          move3 = reversedMoveDB[move3];
+          move4 = reversedMoveDB[move4];
+          //We can add cases for the pokemon that have different names than showdown here
+          console.log(ability);
+    
+    
+          await selectValue(cookies, pokemonId, 'pokemon', name);
+          await selectValue(cookies, pokemonId, 'ability', ability);
+          await selectValue(cookies, pokemonId, 'helditem', item);
+          await selectValue(cookies, pokemonId, 'move1', move1);
+          await selectValue(cookies, pokemonId, 'move2', move2);
+          await selectValue(cookies, pokemonId, 'move3', move3);
+          await selectValue(cookies, pokemonId, 'move4', move4);
 
     }
 }
