@@ -1,6 +1,6 @@
 export function Pokedex() {
     return pokedex;
-  }
+}
 
 var pokedex = {
     "Bulbasaur": {
