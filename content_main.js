@@ -1,9 +1,12 @@
 import { Koffing } from './koff.mjs';
 import { Pokedex } from './pokedex.js';
 import { Natures } from './natures.js';
+import { PokeTranslator } from './TranslatorPokes.js';
+
 
 var pokedex = Pokedex();
 var natures = Natures();
+var pokeTranslator = PokeTranslator();
 var cookies = document.cookie;
 console.log("Cookie:", cookies);
 
@@ -183,7 +186,6 @@ async function convertShowDownList(paste) {
 
     for (let i = 0; i < pokes.length; i++) {
         var pokemon = pokes[i].name;
-        var pokemonId = await getId(pokemon, pokemonMap)
         var ability = pokes[i].ability;
         var abilityId = await getId(ability, abilityMap)
         var teraType = pokes[i].teraType;
@@ -213,6 +215,12 @@ async function convertShowDownList(paste) {
         }
 
         var stats = getStats(pokemon, ivs, evs, level, nature);
+
+        // If RK9 uses different ID, we can't automatically find the name
+        // user need to manually choose the pokemon from RK9
+        var pokemonId = pokeTranslator[pokemon]
+        if (!pokemonId in pokemonMap)
+            pokemonId = ''
 
         var move1 = pokes[i].moves[0];
         var move1Id = await getId(move1, moveMap)
@@ -293,74 +301,78 @@ async function addPokemon() {
 }
 
 async function setValue(pokemonId, field, value) {
-    // Define the URL and headers
-    const postUrl = "https://rk9.gg/teamlist/update";
-    const headers = {
-        "Cookie": cookies
-    };
+    if (value) {
+        // Define the URL and headers
+        const postUrl = "https://rk9.gg/teamlist/update";
+        const headers = {
+            "Cookie": cookies
+        };
 
-    const formData = new FormData();
-    formData.append("id", pokemonId + "-" + field);
-    formData.append("value", value);
+        const formData = new FormData();
+        formData.append("id", pokemonId + "-" + field);
+        formData.append("value", value);
 
-    // Define the POST request options
-    const requestOptions = {
-        method: 'POST',
-        headers: new Headers(headers),
-        body: formData,
-    };
+        // Define the POST request options
+        const requestOptions = {
+            method: 'POST',
+            headers: new Headers(headers),
+            body: formData,
+        };
 
-    // Make the POST request
-    try {
-        const response = await fetch(postUrl, requestOptions);
+        // Make the POST request
+        try {
+            const response = await fetch(postUrl, requestOptions);
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const responseData = await response.json();
+            if (responseData.msg !== "ok") {
+                throw new Error("Response does not contain 'msg' or it's not 'ok'");
+            }
+            updateLoadingOverlay("Set " + field + " -> " + value);// Response data captured in the 'data' variable
+        } catch (error) {
+            console.error("Error:", error);
         }
-
-        const responseData = await response.json();
-        if (responseData.msg !== "ok") {
-            throw new Error("Response does not contain 'msg' or it's not 'ok'");
-        }
-        updateLoadingOverlay("Set " + field + " -> " + value);// Response data captured in the 'data' variable
-    } catch (error) {
-        console.error("Error:", error);
     }
 }
 
 async function selectValue(pokemonId, field, value) {
-    // Define the URL and headers
-    const postUrl = "https://rk9.gg/teamlist/select?lang=EN";
-    const headers = {
-        "Cookie": cookies
-    };
+    if (value) {
+        // Define the URL and headers
+        const postUrl = "https://rk9.gg/teamlist/select?lang=EN";
+        const headers = {
+            "Cookie": cookies
+        };
 
-    const formData = new FormData();
-    formData.append("id", pokemonId + "-" + field);
-    formData.append("value", value);
+        const formData = new FormData();
+        formData.append("id", pokemonId + "-" + field);
+        formData.append("value", value);
 
-    // Define the POST request options
-    const requestOptions = {
-        method: 'POST',
-        headers: new Headers(headers),
-        body: formData,
-    };
+        // Define the POST request options
+        const requestOptions = {
+            method: 'POST',
+            headers: new Headers(headers),
+            body: formData,
+        };
 
-    // Make the POST request
-    try {
-        const response = await fetch(postUrl, requestOptions);
+        // Make the POST request
+        try {
+            const response = await fetch(postUrl, requestOptions);
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const responseData = await response.json();
+            if (responseData.msg !== "ok") {
+                throw new Error("Response does not contain 'msg' or it's not 'ok'");
+            }
+            updateLoadingOverlay("Select " + field + " -> " + value);// Response data captured in the 'data' variable
+        } catch (error) {
+            console.error("Error:", error);
         }
-
-        const responseData = await response.json();
-        if (responseData.msg !== "ok") {
-            throw new Error("Response does not contain 'msg' or it's not 'ok'");
-        }
-        updateLoadingOverlay("Select " + field + " -> " + value);// Response data captured in the 'data' variable
-    } catch (error) {
-        console.error("Error:", error);
     }
 }
 
