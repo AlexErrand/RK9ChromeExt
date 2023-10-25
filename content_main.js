@@ -35,7 +35,8 @@ export function main() {
     showDownButton.className = "btn btn-sm btn-primary mx-2"; // Add the desired classes
     showDownButton.style.backgroundColor = "lightblue";
 
-    // Get a reference to the existing button with the ID "submit"
+    // Get a reference to the existing buttons
+    var existingAddButton = document.getElementById("add");
     var existingSubmitButton = document.getElementById("submit");
 
     // Add a click event listener to the button
@@ -52,7 +53,7 @@ export function main() {
 
         // Create a new text box
         var showDownListBox = document.createElement("textarea");
-        showDownListBox.rows = 20; // Set the number of rows
+        showDownListBox.rows = 18; // Set the number of rows
         showDownListBox.cols = 50; // Set the number of columns (width)
         showDownListBox.style.borderRadius = "5px";
         showDownListBox.style.overflowY = "scroll"; // Add a scrollbar to the text area
@@ -114,12 +115,12 @@ export function main() {
         // Append the buttonContainer to the showDownContainer
         showDownContainer.appendChild(buttonContainer);
 
-        // Insert the text box after the button
-        showDownButton.parentNode.insertBefore(showDownContainer, showDownButton.nextSibling);
+        // Insert the text box after the submit button
+        existingSubmitButton.parentNode.insertBefore(showDownContainer, existingSubmitButton.nextSibling);
     });
 
     // Insert the new button after the existing button
-    existingSubmitButton.parentNode.insertBefore(showDownButton, existingSubmitButton.nextSibling);
+    existingAddButton.parentNode.insertBefore(showDownButton, existingAddButton.nextSibling);
 }
 
 function showLoadingOverlay() {
