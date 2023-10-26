@@ -525,8 +525,8 @@ function addDisclaimer() {
         // Create a new paragraph element
         var newParagraph = document.createElement('p');
 
-        // Add your content to the new paragraph
-        newParagraph.textContent = 'Please always make sure that the team submitted here matches the team in your console.';
+        // Add content to the new paragraph
+        newParagraph.innerHTML = 'Note: Extreme Speed - VGC Companion is not affiliated with RK9Labs, Nintendo, Game Freak, Pokémon Showdown or The Pokémon Company International. <br>Please always make sure that the team submitted here matches the team in your console, and that your Pokémon are appropriately leveled prior to importing your team for accurate results.';
         newParagraph.style.color = 'red';
         newParagraph.style.fontWeight = 'bold';
 
