@@ -531,7 +531,7 @@ function updateSprites(){
         var dataForm = div.getAttribute("data-form");
         
         // Create a new img link based on data-number and data-form
-        var newImgLink = "https://www.serebii.net/pokemon/art/"+dataNumber+".png";
+        var newImgLink = "https://www.serebii.net/scarletviolet/pokemon/new/"+dataNumber+".png";
 
         var index = dataNumber+"_"+dataForm;
         if (spritesLink[index])
