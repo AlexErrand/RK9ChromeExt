@@ -526,7 +526,7 @@ function addDisclaimer() {
         var newParagraph = document.createElement('p');
 
         // Add your content to the new paragraph
-        newParagraph.textContent = 'Please always make sure that the teams submitted here matches the team in your console.';
+        newParagraph.textContent = 'Please always make sure that the team submitted here matches the team in your console.';
         newParagraph.style.color = 'red';
         newParagraph.style.fontWeight = 'bold';
 
