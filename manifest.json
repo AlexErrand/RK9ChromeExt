@@ -1,9 +1,10 @@
 {
-  "name": "RK9 Showdown Converter",
+  "name": "Extreme Speed - VGC Companion",
   "version": "1.0",
-  "description": "A Chrome Extension",
+  "description": "RK9Labs Extension that allows you to use your showdown paste to submit your team for real life VGC events with ease.",
   "manifest_version": 3,
-  "permissions": ["activeTab", "scripting", "tabs"],
+  
+  "permissions": ["scripting"],
   "host_permissions": ["https://rk9.gg/teamlist/*"],
   "content_scripts": [
     {
@@ -13,7 +14,7 @@
     }
   ],
   "icons": {
-    "48": "masterrankribbon.png"
+    "48": "extreme_speed.png"
   },
   "web_accessible_resources": [{
     "matches": ["https://rk9.gg/*"],
