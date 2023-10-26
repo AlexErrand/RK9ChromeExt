@@ -123,24 +123,6 @@ export function main() {
             showDownButton.style.backgroundColor = "lightblue"; // Restore the background color
         });
 
-        var OTSOnlyCheckbox = document.createElement("input");
-        OTSOnlyCheckbox.type = "checkbox";
-        OTSOnlyCheckbox.id = "OTSOnlyCheckbox";
-        OTSOnlyCheckbox.className = "form-check-input";
-
-        var OTSOnlyLabel = document.createElement("label");
-        OTSOnlyLabel.htmlFor = "OTSOnlyCheckbox";
-        OTSOnlyLabel.className = "form-check-label";
-        OTSOnlyLabel.innerText = "I want the OTS of my team only (No Stats or Level)";
-
-        var checkboxContainer = document.createElement("div");
-        checkboxContainer.className = "form-check";
-        checkboxContainer.appendChild(OTSOnlyCheckbox);
-        checkboxContainer.appendChild(OTSOnlyLabel);
-
-        // Append the checkbox container above the Convert List button
-        buttonContainer.insertBefore(checkboxContainer, convertButton);
-
         // Append the text box to the container
         showDownContainer.appendChild(showDownListBox);
 
@@ -347,9 +329,6 @@ async function convertShowDownList(paste) {
         console.log('move3: ' + move3 + '(' + move3Id + ')');
         console.log('move4: ' + move4 + '(' + move4Id + ')');
         await setValue(pokeToken, 'name', nickname);
-
-        //values to be excluded if the checkbox is checked
-        if (!OTSOnlyCheckbox.checked) {
         await setValue(pokeToken, 'level', level);
         await setValue(pokeToken, 'hp', stats.hp);
         await setValue(pokeToken, 'attack', stats.atk);
@@ -357,8 +336,6 @@ async function convertShowDownList(paste) {
         await setValue(pokeToken, 'spatk', stats.spa);
         await setValue(pokeToken, 'spdef', stats.spd);
         await setValue(pokeToken, 'speed', stats.spe);
-        }
-        
         await selectValue(pokeToken, 'pokemon', pokemonId);
         await selectValue(pokeToken, 'teratype', teraTypeId);
         await selectValue(pokeToken, 'ability', abilityId);
