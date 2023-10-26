@@ -36,6 +36,7 @@ width: 498px; /* Adjust the size as needed */
 height: 305px; /* Adjust the size as needed */`;
 
 export function main() {
+    addDisclaimer();
     updateSprites();
 
     // Create a new button element
@@ -66,22 +67,18 @@ export function main() {
         showDownListBox.cols = 50; // Set the number of columns (width)
         showDownListBox.style.borderRadius = "5px";
         showDownListBox.style.overflowY = "scroll"; // Add a scrollbar to the text area
-        
 
         function updateButtonState() {
             const inputValue = showDownListBox.value.trim();
             convertButton.disabled = inputValue === "";
             convertButton.style.backgroundColor = inputValue !== "" ? "lightblue" : "gray";
         }
-        
+
         // Add input event listener to text area
         showDownListBox.addEventListener("input", updateButtonState);
-        
+
         // Append the text area to the document body (or another container element)
         document.body.appendChild(showDownListBox);
-        
-
-        
 
         // Create a container div for the buttons
         var buttonContainer = document.createElement("div");
@@ -100,7 +97,6 @@ export function main() {
 
         // Set initial state of the button
         updateButtonState();
-        
 
         convertButton.addEventListener("click", async function () {
             var startTime = new Date().getTime(); // Get the current time
@@ -520,23 +516,42 @@ function getDuration(startTime) {
     return minutes + "m " + seconds + "s " + milliseconds + "ms";
 }
 
-function updateSprites(){
+function addDisclaimer() {
+    // Find the div element with the class "alert alert-warning"
+    var warningDiv = document.querySelector('.alert.alert-warning');
+
+    // Check if the div element is found
+    if (warningDiv) {
+        // Create a new paragraph element
+        var newParagraph = document.createElement('p');
+
+        // Add your content to the new paragraph
+        newParagraph.textContent = 'Please always make sure that the teams submitted here matches the team in your console.';
+        newParagraph.style.color = 'red';
+        newParagraph.style.fontWeight = 'bold';
+
+        // Append the new paragraph to the warning div
+        warningDiv.appendChild(newParagraph);
+    }
+}
+
+function updateSprites() {
     // Get all the div elements with the class "pokemon"
     var pokemonDivs = document.querySelectorAll(".pokemon");
 
     // Loop through each div element
-    pokemonDivs.forEach(function(div) {
+    pokemonDivs.forEach(function (div) {
         // Get the data attributes for data-number and data-form
         var dataNumber = div.getAttribute("data-number");
         var dataForm = div.getAttribute("data-form");
-        
-        // Create a new img link based on data-number and data-form
-        var newImgLink = "https://www.serebii.net/scarletviolet/pokemon/new/"+dataNumber+".png";
 
-        var index = dataNumber+"_"+dataForm;
+        // Create a new img link based on data-number and data-form
+        var newImgLink = "https://www.serebii.net/scarletviolet/pokemon/new/" + dataNumber + ".png";
+
+        var index = dataNumber + "_" + dataForm;
         if (spritesLink[index])
             newImgLink = spritesLink[index];
-        
+
         // Reset the margin height for the img
         var imgElement = div.querySelector("img");
         imgElement.src = newImgLink;

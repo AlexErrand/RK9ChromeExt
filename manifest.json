@@ -4,10 +4,10 @@
   "description": "A Chrome Extension",
   "manifest_version": 3,
   "permissions": ["activeTab", "scripting", "tabs"],
-  "host_permissions": ["https://rk9.gg/*"],
+  "host_permissions": ["https://rk9.gg/teamlist/*"],
   "content_scripts": [
     {
-      "matches": ["https://rk9.gg/*"],
+      "matches": ["https://rk9.gg/teamlist/*"],
       "js": ["content_script.js"],
       "run_at": "document_end"
     }
