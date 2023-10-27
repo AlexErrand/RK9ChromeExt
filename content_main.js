@@ -14,9 +14,34 @@ var teraMap = '';
 var abilityMap = '';
 var itemMap = '';
 var moveMap = '';
+var team = [];
+var allowSubmission = false;
 
 var cookies = document.cookie;
 //console.log("Cookie:", cookies);
+
+var Pokemon = class {
+    constructor() {
+        this.moves = [];
+        this.validations = [];
+    }
+    static fromObject(obj) {
+        const p = new Pokemon();
+        p.name = obj.name;
+        p.nickname = obj.nickname;
+        p.item = obj.item;
+        p.ability = obj.ability;
+        p.level = obj.level;
+        p.stats = obj.stats;
+        p.teraType = obj.teraType;
+        p.moves = Array.isArray(obj.moves) ? obj.moves : [];
+        p.validations = Array.isArray(obj.validations) ? obj.validations : [];
+        return p;
+    }
+    toJson(indentation = 2) {
+        return JSON.stringify(this, null, indentation);
+    }
+}
 
 // Add this style to your script
 const overlayStyle = `
@@ -100,9 +125,20 @@ export function main() {
 
         convertButton.addEventListener("click", async function () {
             var startTime = new Date().getTime(); // Get the current time
-            showLoadingOverlay(); // Show loading overlay
             try {
-                await convertShowDownList(showDownListBox.value);
+                var [team, hasValidations] = await convertShowDownList(showDownListBox.value);
+                if (hasValidations) {
+                    await showValidationOverlay(team);
+                } else {
+                    allowSubmission = true;
+                }
+
+                if (!allowSubmission)
+                    return
+
+                showLoadingOverlay(); // Show loading overlay
+                await submitTeam(team);
+
             } catch (error) {
                 console.error('There has been a problem with your fetch operation:', error);
             };
@@ -139,6 +175,94 @@ export function main() {
 
     // Insert the new button after the existing button
     existingAddButton.parentNode.insertBefore(showDownButton, existingAddButton.nextSibling);
+}
+
+async function showValidationOverlay(team) {
+    const validationOverlay = document.createElement("div");
+    validationOverlay.id = "validation-overlay";
+    validationOverlay.style = overlayStyle; // Apply your desired styles
+    validationOverlay.style.display = "flex";
+    validationOverlay.style.flexDirection = "column";
+    validationOverlay.style.color = "white";
+
+    const container = document.createElement("div");
+    container.style.position = "fixed";
+    container.style.left = "50%";
+    container.style.top = "50%";
+    container.style.transform = "translate(-50%, -50%)";
+    container.className = "alert alert-warning";
+
+    const validationMessage = document.createElement("p");
+    validationMessage.textContent = "Warnings:";
+    validationMessage.style.fontWeight = 'bold';
+    container.appendChild(validationMessage);
+
+    const validationErrorsList = document.createElement("ul");
+
+    team.forEach((pokemon) => {
+        if (pokemon.validations.length > 0) {
+            const pokeItem = document.createElement("li");
+            pokeItem.textContent = pokemon.name + ':';
+            pokeItem.style.marginTop = '10px'
+            const validationList = document.createElement("ul");
+            pokemon.validations.forEach((validation) => {
+                const valItem = document.createElement("li");
+                valItem.textContent = '- ' + validation;
+                valItem.style.textIndent = '20px';
+                validationList.appendChild(valItem)
+            });
+            pokeItem.appendChild(validationList);
+            validationErrorsList.appendChild(pokeItem);
+        }
+
+    });
+
+    container.appendChild(validationErrorsList);
+
+    // Create a container div for the buttons
+    var buttonContainer = document.createElement("div");
+    buttonContainer.style.display = "flex"; // Set the container to use flex layout
+    buttonContainer.style.justifyContent = 'center';
+    buttonContainer.style.marginTop = "2em"; // Adjust the margin as needed
+    container.appendChild(buttonContainer);
+
+    // Create "Continue" and "Cancel" buttons
+    const continueButton = document.createElement("button");
+    continueButton.textContent = "Continue";
+    continueButton.className = "btn btn-sm btn-primary mx-2";
+    continueButton.style.backgroundColor = "lightblue";
+    continueButton.addEventListener("click", function () {
+        // Handle the "Continue" button click
+        validationOverlay.style.display = "none"; // Hide the overlay
+        allowSubmission = true;
+        // Continue with your code here
+    });
+    buttonContainer.appendChild(continueButton);
+
+    const cancelButton = document.createElement("button");
+    cancelButton.textContent = "Cancel";
+    cancelButton.className = "btn btn-sm btn-primary mx-2";
+    cancelButton.style.marginLeft = "0.5em"; // Adjust the margin as needed
+    cancelButton.style.backgroundColor = "lightblue";
+    cancelButton.addEventListener("click", function () {
+        // Handle the "Cancel" button click
+        validationOverlay.style.display = "none"; // Hide the overlay
+        // Handle the cancellation as needed
+    });
+    buttonContainer.appendChild(cancelButton);
+
+    // Append the overlay to the document body
+    validationOverlay.appendChild(container);
+    document.body.appendChild(validationOverlay);
+
+    // Show the overlay
+    validationOverlay.style.display = "block";
+
+    // Wait for the user to click either button
+    await Promise.race([
+        createPromiseForButtonClick(continueButton),
+        createPromiseForButtonClick(cancelButton),
+    ]);
 }
 
 function showLoadingOverlay() {
@@ -199,29 +323,6 @@ function hideLoadingOverlay() {
     }
 }
 
-// async function getBaseStats(pokemonName) {
-//     try {
-//         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName.toLowerCase()}/`);
-//         if (!response.ok) {
-//             throw new Error('Network response was not ok ' + response.statusText);
-//         }
-//         const data = await response.json();
-//         const stats = data.stats;
-
-//         // Mapping the names used by the API to the order you want
-//         const statOrder = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed'];
-//         const baseStats = statOrder.map(statName => {
-//             const stat = stats.find(s => s.stat.name === statName);
-//             return stat ? stat.base_stat : 0;
-//         });
-
-//         console.log('Base Stats:', baseStats);
-//         return baseStats;
-//     } catch (error) {
-//         console.error('There has been a problem with your fetch operation:', error);
-//     }
-// }
-
 function getStats(poke, ivs, evs, level, nat) {
     var ret = { 'hp': 0, 'atk': 0, 'def': 0, 'spa': 0, 'spd': 0, 'spe': 0 };
 
@@ -243,12 +344,14 @@ function getStats(poke, ivs, evs, level, nat) {
 
 // Function to remove the container
 async function convertShowDownList(paste) {
+    team = [];
+    var hasValidations = false;
     var parsedTeam = Koffing.parse(paste);
 
     var pokes = parsedTeam.teams[0].pokemon;
 
     for (let i = 0; i < pokes.length; i++) {
-        var pokemon = pokes[i].name;
+        var name = pokes[i].name;
         var ability = pokes[i].ability;
         var teraType = pokes[i].teraType;
         var nickname = pokes[i].nickname;
@@ -274,15 +377,30 @@ async function convertShowDownList(paste) {
             }
         }
 
-        var stats = getStats(pokemon, ivs, evs, level, nature);
+        var stats = getStats(name, ivs, evs, level, nature);
 
-        var move1 = pokes[i].moves[0];
-        var move2 = pokes[i].moves[1];
-        var move3 = pokes[i].moves[2];
-        var move4 = pokes[i].moves[3];
+        var pokemon = new Pokemon()
+        pokemon.name = name;
+        pokemon.nickname = nickname;
+        pokemon.item = item;
+        pokemon.ability = ability;
+        pokemon.level = level;
+        pokemon.stats = stats;
+        pokemon.teraType = teraType;
+        pokemon.moves = pokes[i].moves;
 
+        pokemon.validations = validatePokemon(pokemon);
+        hasValidations = hasValidations ? hasValidations : (pokemon.validations.length > 0)
+
+        team.push(pokemon);
+    }
+    return [team, hasValidations];
+}
+
+async function submitTeam(team) {
+    for (const pokemon of team) {
         var startTime = new Date().getTime(); // Get the current time
-        console.log('============== Adding Pokemon ' + pokemon + ' ============');
+
         var pokeToken = await addPokemon(pokemon);
         if (pokeToken == "") {
             return;
@@ -299,43 +417,28 @@ async function convertShowDownList(paste) {
         if (moveMap == '')
             moveMap = await getRk9FieldMap(pokeToken, "move");
 
-        var abilityId = await getId(ability, abilityMap)
-        var teraTypeId = await getId(teraType, teraMap)
-        var itemId = await getId(item, itemMap)
-        var move1Id = await getId(move1, moveMap)
-        var move2Id = await getId(move2, moveMap)
-        var move3Id = await getId(move3, moveMap)
-        var move4Id = await getId(move4, moveMap)
+        var abilityId = await getId(pokemon.ability, abilityMap)
+        var teraTypeId = await getId(pokemon.teraType, teraMap)
+        var itemId = await getId(pokemon.item, itemMap)
+        var move1Id = await getId(pokemon.moves[0], moveMap)
+        var move2Id = await getId(pokemon.moves[1], moveMap)
+        var move3Id = await getId(pokemon.moves[2], moveMap)
+        var move4Id = await getId(pokemon.moves[3], moveMap)
 
         // If RK9 uses different ID, we can't automatically find the name
         // user need to manually choose the pokemon from RK9
-        var pokemonId = pokeTranslator[pokemon]
+        var pokemonId = pokeTranslator[pokemon.name]
         if (!pokemonId in pokemonMap)
             pokemonId = ''
 
-        // Logs for debuggin
-        console.log('pokemon: ' + pokemon + '(' + pokemonId + ')');
-        console.log('nickname: ' + nickname);
-        console.log('item: ' + item + '(' + itemId + ')');
-        console.log('teraType: ' + teraType + '(' + teraTypeId + ')');
-        console.log('level: ' + level);
-        console.log('ability: ' + ability + '(' + abilityId + ')');
-        console.log('evs: ' + JSON.stringify(evs));
-        console.log('ivs: ' + JSON.stringify(ivs));
-        console.log('nature: ' + nature);
-        console.log('stats:' + JSON.stringify(stats));
-        console.log('move1: ' + move1 + '(' + move1Id + ')');
-        console.log('move2: ' + move2 + '(' + move2Id + ')');
-        console.log('move3: ' + move3 + '(' + move3Id + ')');
-        console.log('move4: ' + move4 + '(' + move4Id + ')');
-        await setValue(pokeToken, 'name', nickname);
-        await setValue(pokeToken, 'level', level);
-        await setValue(pokeToken, 'hp', stats.hp);
-        await setValue(pokeToken, 'attack', stats.atk);
-        await setValue(pokeToken, 'defense', stats.def);
-        await setValue(pokeToken, 'spatk', stats.spa);
-        await setValue(pokeToken, 'spdef', stats.spd);
-        await setValue(pokeToken, 'speed', stats.spe);
+        await setValue(pokeToken, 'name', pokemon.nickname);
+        await setValue(pokeToken, 'level', pokemon.level);
+        await setValue(pokeToken, 'hp', pokemon.stats.hp);
+        await setValue(pokeToken, 'attack', pokemon.stats.atk);
+        await setValue(pokeToken, 'defense', pokemon.stats.def);
+        await setValue(pokeToken, 'spatk', pokemon.stats.spa);
+        await setValue(pokeToken, 'spdef', pokemon.stats.spd);
+        await setValue(pokeToken, 'speed', pokemon.stats.spe);
         await selectValue(pokeToken, 'pokemon', pokemonId);
         await selectValue(pokeToken, 'teratype', teraTypeId);
         await selectValue(pokeToken, 'ability', abilityId);
@@ -346,8 +449,18 @@ async function convertShowDownList(paste) {
         await selectValue(pokeToken, 'move4', move4Id);
 
         // Display the timer in the desired format
-        console.log('!!!!!!!!Pokemon ' + pokemon + ' Added!!!!!!!! (' + getDuration(startTime) + ')');
+        console.log('Pokemon "' + pokemon.name + '" submitted (' + getDuration(startTime) + ')');
+    };
+}
+
+function validatePokemon(pokemon) {
+    var validations = [];
+
+    if (pokemon.level < 100) {
+        validations.push("Level is " + pokemon.level + ' (not maxed)');
     }
+
+    return validations;
 }
 
 async function addPokemon(pokemon) {
@@ -370,7 +483,7 @@ async function addPokemon(pokemon) {
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        updateLoadingOverlayPokemon("Adding " + pokemon + "...");
+        updateLoadingOverlayPokemon("Adding " + pokemon.name + "...");
         return response.text();
     } catch (error) {
         console.error("Error:", error);
@@ -557,5 +670,13 @@ function updateSprites() {
         imgElement.src = newImgLink;
         imgElement.style.margin = "0"; // Set margin to 0px
         imgElement.style.height = "128px" // Set height to 128px
+    });
+}
+
+function createPromiseForButtonClick(button) {
+    return new Promise((resolve) => {
+        button.addEventListener("click", () => {
+            resolve();
+        });
     });
 }
