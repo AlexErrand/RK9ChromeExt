@@ -124,7 +124,6 @@ export function main() {
         updateButtonState();
 
         convertButton.addEventListener("click", async function () {
-            var startTime = new Date().getTime(); // Get the current time
             try {
                 var [convertedPokemons, hasValidations] = await convertShowDownList(showDownListBox.value);
                 if (hasValidations) {
@@ -136,16 +135,12 @@ export function main() {
                 if (!allowSubmission)
                     return
 
-                showLoadingOverlay(); // Show loading overlay
                 await addPokemons(convertedPokemons);
-
             } catch (error) {
-                console.error('There has been a problem with your fetch operation:', error);
+                await showErrorOverlay(error.message);
+                return
             };
-
-            hideLoadingOverlay(); // Hide loading overlay when the process is complete
-            console.log("Totally taken " + getDuration(startTime));
-            location.reload();
+            await showConfirmationOverlay(); // Display a confirmation page to the user
         });
 
         var cancelButton = document.createElement("button");
@@ -183,7 +178,6 @@ async function showValidationOverlay(convertedPokemons) {
     validationOverlay.style = overlayStyle; // Apply your desired styles
     validationOverlay.style.display = "flex";
     validationOverlay.style.flexDirection = "column";
-    validationOverlay.style.color = "white";
 
     const container = document.createElement("div");
     container.style.position = "fixed";
@@ -192,10 +186,10 @@ async function showValidationOverlay(convertedPokemons) {
     container.style.transform = "translate(-50%, -50%)";
     container.className = "alert alert-warning";
 
-    const validationMessage = document.createElement("p");
-    validationMessage.textContent = "Warnings:";
-    validationMessage.style.fontWeight = 'bold';
-    container.appendChild(validationMessage);
+    const title = document.createElement("p");
+    title.textContent = "Warning";
+    title.style.fontWeight = 'bold';
+    container.appendChild(title);
 
     const validationErrorsList = document.createElement("ul");
 
@@ -265,6 +259,120 @@ async function showValidationOverlay(convertedPokemons) {
     ]);
 }
 
+async function showConfirmationOverlay() {
+    const confirmationOverlay = document.createElement("div");
+    confirmationOverlay.id = "confirmation-overlay";
+    confirmationOverlay.style = overlayStyle; // Apply your desired styles
+    confirmationOverlay.style.display = "flex";
+    confirmationOverlay.style.flexDirection = "column";
+
+    const container = document.createElement("div");
+    container.style.position = "fixed";
+    container.style.left = "50%";
+    container.style.top = "50%";
+    container.style.transform = "translate(-50%, -50%)";
+    container.className = "alert alert-warning";
+
+    const title = document.createElement("p");
+    title.textContent = "Congratulations";
+    title.style.fontWeight = 'bold';
+    container.appendChild(title);
+
+    const confirmationMessage = document.createElement("p");
+    confirmationMessage.innerHTML = 'Your pokemons have been added.';
+    container.appendChild(confirmationMessage);
+
+    const disclaimerMessage = document.createElement("p");
+    disclaimerMessage.innerHTML = 'Please check the stats of added pokemons after the page is refreshed.';
+    disclaimerMessage.style.color = 'red';
+    disclaimerMessage.style.fontWeight = 'bold';
+    disclaimerMessage.style.fontSize = '80%'; // This reduces the font size by 20%
+    container.appendChild(disclaimerMessage);
+
+    // Create a container div for the buttons
+    var buttonContainer = document.createElement("div");
+    buttonContainer.style.display = "flex"; // Set the container to use flex layout
+    buttonContainer.style.justifyContent = 'center';
+    buttonContainer.style.marginTop = "2em"; // Adjust the margin as needed
+    container.appendChild(buttonContainer);
+
+    // Create "Ok" buttons
+    const okButton = document.createElement("button");
+    okButton.textContent = "Ok";
+    okButton.className = "btn btn-sm btn-primary mx-2";
+    okButton.style.backgroundColor = "lightblue";
+    okButton.addEventListener("click", function () {
+        location.reload();
+    });
+    buttonContainer.appendChild(okButton);
+
+    // Append the overlay to the document body
+    confirmationOverlay.appendChild(container);
+    document.body.appendChild(confirmationOverlay);
+
+    // Show the overlay
+    confirmationOverlay.style.display = "block";
+
+    // Wait for the user to click either button
+    await Promise.race([createPromiseForButtonClick(okButton)]);
+}
+
+async function showErrorOverlay(message) {
+    const errorOverlay = document.createElement("div");
+    errorOverlay.id = "error-overlay";
+    errorOverlay.style = overlayStyle; // Apply your desired styles
+    errorOverlay.style.display = "flex";
+    errorOverlay.style.flexDirection = "column";
+
+    const container = document.createElement("div");
+    container.style.position = "fixed";
+    container.style.left = "50%";
+    container.style.top = "50%";
+    container.style.transform = "translate(-50%, -50%)";
+    container.className = "alert alert-warning";
+
+    const title = document.createElement("p");
+    title.textContent = "Error";
+    title.style.fontWeight = 'bold';
+    container.appendChild(title);
+
+    const errorMessage = document.createElement("p");
+    errorMessage.innerHTML = message;
+    container.appendChild(errorMessage);
+
+    // Create a container div for the buttons
+    var buttonContainer = document.createElement("div");
+    buttonContainer.style.display = "flex"; // Set the container to use flex layout
+    buttonContainer.style.justifyContent = 'center';
+    buttonContainer.style.marginTop = "2em"; // Adjust the margin as needed
+    container.appendChild(buttonContainer);
+
+    // Create "Ok" buttons
+    const okButton = document.createElement("button");
+    okButton.textContent = "Ok";
+    okButton.className = "btn btn-sm btn-primary mx-2";
+    okButton.style.backgroundColor = "lightblue";
+    okButton.style.display = "flex"; // Set the container to use flex layout
+    okButton.style.justifyContent = 'center';
+    okButton.style.marginTop = "2em"; // Adjust the margin as needed
+    okButton.addEventListener("click", function () {
+        // Handle the "Continue" button click
+        errorOverlay.style.display = "none"; // Hide the overlay
+        // Continue with your code here
+    });
+    buttonContainer.appendChild(okButton);
+
+    // Append the overlay to the document body
+    errorOverlay.appendChild(container);
+    document.body.appendChild(errorOverlay);
+
+    // Show the overlay
+    errorOverlay.style.display = "block";
+
+    // Wait for the user to click either button
+    await Promise.race([createPromiseForButtonClick(okButton)]);
+}
+
 function showLoadingOverlay() {
     const overlay = document.createElement("div");
     overlay.id = "loading-overlay";
@@ -312,7 +420,7 @@ function updateLoadingOverlayProgress(message) {
 }
 
 function hideLoadingOverlay() {
-    const overlay = document.querySelector("#loading-overlay");
+    const overlay = document.getElementById("loading-overlay");
     if (overlay) {
         document.body.removeChild(overlay);
     }
@@ -339,60 +447,69 @@ function getStats(poke, ivs, evs, level, nat) {
 
 // Function to remove the container
 async function convertShowDownList(paste) {
-    convertedPokemons = [];
-    var hasValidations = false;
-    var parsedTeam = Koffing.parse(paste);
+    try {
+        convertedPokemons = [];
+        var hasValidations = false;
+        var parsedTeam = Koffing.parse(paste);
 
-    var pokes = parsedTeam.teams[0].pokemon;
+        var pokes = parsedTeam.teams[0].pokemon;
 
-    for (let i = 0; i < pokes.length; i++) {
-        var name = pokes[i].name;
-        var ability = pokes[i].ability;
-        var teraType = pokes[i].teraType;
-        var nickname = pokes[i].nickname;
-        var item = pokes[i].item
-        var nature = pokes[i].nature;
+        for (let i = 0; i < pokes.length; i++) {
+            var name = pokes[i].name;
+            var ability = pokes[i].ability;
+            var teraType = pokes[i].teraType;
+            var nickname = pokes[i].nickname;
+            var item = pokes[i].item
+            var nature = pokes[i].nature;
 
-        var level = 100;
-        if (pokes[i].level) {
-            level = pokes[i].level;
-        }
-
-        var ivs = { 'hp': 31, 'atk': 31, 'def': 31, 'spa': 31, 'spd': 31, 'spe': 31 };
-        if (pokes[i].ivs) {
-            for (const [key, value] of Object.entries(pokes[i].ivs)) {
-                ivs[key] = value;
+            var level = 100;
+            if (pokes[i].level) {
+                level = pokes[i].level;
             }
-        }
 
-        var evs = { 'hp': 0, 'atk': 0, 'def': 0, 'spa': 0, 'spd': 0, 'spe': 0 };
-        if (pokes[i].evs) {
-            for (const [key, value] of Object.entries(pokes[i].evs)) {
-                evs[key] = value;
+            var ivs = { 'hp': 31, 'atk': 31, 'def': 31, 'spa': 31, 'spd': 31, 'spe': 31 };
+            if (pokes[i].ivs) {
+                for (const [key, value] of Object.entries(pokes[i].ivs)) {
+                    ivs[key] = value;
+                }
             }
+
+            var evs = { 'hp': 0, 'atk': 0, 'def': 0, 'spa': 0, 'spd': 0, 'spe': 0 };
+            if (pokes[i].evs) {
+                for (const [key, value] of Object.entries(pokes[i].evs)) {
+                    evs[key] = value;
+                }
+            }
+
+            var stats = getStats(name, ivs, evs, level, nature);
+
+            var pokemon = new Pokemon()
+            pokemon.name = name;
+            pokemon.nickname = nickname;
+            pokemon.item = item;
+            pokemon.ability = ability;
+            pokemon.level = level;
+            pokemon.stats = stats;
+            pokemon.teraType = teraType;
+            pokemon.moves = pokes[i].moves;
+
+            pokemon.validations = validatePokemon(pokemon);
+            hasValidations = hasValidations ? hasValidations : (pokemon.validations.length > 0)
+
+            convertedPokemons.push(pokemon);
         }
-
-        var stats = getStats(name, ivs, evs, level, nature);
-
-        var pokemon = new Pokemon()
-        pokemon.name = name;
-        pokemon.nickname = nickname;
-        pokemon.item = item;
-        pokemon.ability = ability;
-        pokemon.level = level;
-        pokemon.stats = stats;
-        pokemon.teraType = teraType;
-        pokemon.moves = pokes[i].moves;
-
-        pokemon.validations = validatePokemon(pokemon);
-        hasValidations = hasValidations ? hasValidations : (pokemon.validations.length > 0)
-
-        convertedPokemons.push(pokemon);
+    }
+    catch (error) {
+        console.log('Error converting list: ' + error.message);
+        throw new Error(`Error converting this list`);
     }
     return [convertedPokemons, hasValidations];
 }
 
 async function addPokemons(convertedPokemons) {
+    showLoadingOverlay(); // Show loading overlay
+    var startTime = new Date().getTime(); // Get the current time
+
     for (const pokemon of convertedPokemons) {
         var startTime = new Date().getTime(); // Get the current time
 
@@ -446,6 +563,8 @@ async function addPokemons(convertedPokemons) {
         // Display the timer in the desired format
         console.log('Pokemon "' + pokemon.name + '" submitted (' + getDuration(startTime) + ')');
     };
+    console.log("Totally taken " + getDuration(startTime));
+    hideLoadingOverlay(); // Hide loading overlay when the process is complete
 }
 
 function validatePokemon(pokemon) {
@@ -481,7 +600,7 @@ async function addSinglePokemon(pokemon) {
         resetLoadingOverlayProgress("Adding " + pokemon.name + ' ...');
         return response.text();
     } catch (error) {
-        console.error("Error:", error);
+        console.log("Error:", error.message);
     }
 }
 
@@ -518,7 +637,7 @@ async function setValue(pokemonId, field, value, fieldDisplay) {
             }
             updateLoadingOverlayProgress("Set " + fieldDisplay + " -> " + value);// Response data captured in the 'data' variable
         } catch (error) {
-            console.error("Error:", error);
+            console.log("Error:", error.message);
         }
     }
 }
@@ -556,7 +675,7 @@ async function selectValue(pokemonId, field, value, fieldDisplay, valueDisplay) 
             }
             updateLoadingOverlayProgress("Choose " + fieldDisplay + " -> " + valueDisplay);// Response data captured in the 'data' variable
         } catch (error) {
-            console.error("Error:", error);
+            console.log("Error:", error.message);
         }
     }
 }
@@ -591,7 +710,7 @@ async function getRk9FieldMap(token, field) {
             storageValue = responseData
             sessionStorage.setItem(field, JSON.stringify(storageValue));
         } catch (error) {
-            console.error("Error:", error);
+            console.log("Error:", error.message);
         }
     }
     return storageValue;
@@ -606,9 +725,6 @@ async function getId(targetValue, fieldMap) {
             break; // Stop the loop once a match is found
         }
     }
-
-    if (resultKey == null)
-        throw new Error(`Cannot find a mapping key for: ${targetValue}`);
 
     return resultKey
 }
