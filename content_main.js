@@ -14,7 +14,7 @@ var teraMap = '';
 var abilityMap = '';
 var itemMap = '';
 var moveMap = '';
-var team = [];
+var convertedPokemons = [];
 var allowSubmission = false;
 
 var cookies = document.cookie;
@@ -126,9 +126,9 @@ export function main() {
         convertButton.addEventListener("click", async function () {
             var startTime = new Date().getTime(); // Get the current time
             try {
-                var [team, hasValidations] = await convertShowDownList(showDownListBox.value);
+                var [convertedPokemons, hasValidations] = await convertShowDownList(showDownListBox.value);
                 if (hasValidations) {
-                    await showValidationOverlay(team);
+                    await showValidationOverlay(convertedPokemons);
                 } else {
                     allowSubmission = true;
                 }
@@ -137,7 +137,7 @@ export function main() {
                     return
 
                 showLoadingOverlay(); // Show loading overlay
-                await submitTeam(team);
+                await addPokemons(convertedPokemons);
 
             } catch (error) {
                 console.error('There has been a problem with your fetch operation:', error);
@@ -177,7 +177,7 @@ export function main() {
     existingAddButton.parentNode.insertBefore(showDownButton, existingAddButton.nextSibling);
 }
 
-async function showValidationOverlay(team) {
+async function showValidationOverlay(convertedPokemons) {
     const validationOverlay = document.createElement("div");
     validationOverlay.id = "validation-overlay";
     validationOverlay.style = overlayStyle; // Apply your desired styles
@@ -199,7 +199,7 @@ async function showValidationOverlay(team) {
 
     const validationErrorsList = document.createElement("ul");
 
-    team.forEach((pokemon) => {
+    convertedPokemons.forEach((pokemon) => {
         if (pokemon.validations.length > 0) {
             const pokeItem = document.createElement("li");
             pokeItem.textContent = pokemon.name + ':';
@@ -282,25 +282,20 @@ function showLoadingOverlay() {
     messageElement.style.color = "white";
     messageElement.style.marginTop = "0.5em"; // Adjust the margin as needed
 
-    const messageElement2 = document.createElement("p");
-    messageElement2.style.color = "white";
-    messageElement2.style.marginTop = "0.5em"; // Adjust the margin as needed
-
     container.appendChild(loadingImage);
     container.appendChild(messageElement);
-    container.appendChild(messageElement2);
 
     overlay.appendChild(container);
     document.body.appendChild(overlay);
 }
 
-function updateLoadingOverlayPokemon(message) {
+function resetLoadingOverlayProgress(message) {
     var loadingOverlay = document.getElementById("loading-overlay");
 
     if (loadingOverlay) {
         var messageElement = loadingOverlay.querySelector("p");
         if (messageElement) {
-            messageElement.innerText = message;
+            messageElement.innerHTML = message + '<br>';
         }
     }
 }
@@ -309,9 +304,9 @@ function updateLoadingOverlayProgress(message) {
     var loadingOverlay = document.getElementById("loading-overlay");
 
     if (loadingOverlay) {
-        var messageElement = loadingOverlay.querySelectorAll("p")[1];
+        var messageElement = loadingOverlay.querySelector("p");
         if (messageElement) {
-            messageElement.innerText = message;
+            messageElement.innerHTML += message + '<br>';
         }
     }
 }
@@ -344,7 +339,7 @@ function getStats(poke, ivs, evs, level, nat) {
 
 // Function to remove the container
 async function convertShowDownList(paste) {
-    team = [];
+    convertedPokemons = [];
     var hasValidations = false;
     var parsedTeam = Koffing.parse(paste);
 
@@ -392,16 +387,16 @@ async function convertShowDownList(paste) {
         pokemon.validations = validatePokemon(pokemon);
         hasValidations = hasValidations ? hasValidations : (pokemon.validations.length > 0)
 
-        team.push(pokemon);
+        convertedPokemons.push(pokemon);
     }
-    return [team, hasValidations];
+    return [convertedPokemons, hasValidations];
 }
 
-async function submitTeam(team) {
-    for (const pokemon of team) {
+async function addPokemons(convertedPokemons) {
+    for (const pokemon of convertedPokemons) {
         var startTime = new Date().getTime(); // Get the current time
 
-        var pokeToken = await addPokemon(pokemon);
+        var pokeToken = await addSinglePokemon(pokemon);
         if (pokeToken == "") {
             return;
         }
@@ -431,22 +426,22 @@ async function submitTeam(team) {
         if (!pokemonId in pokemonMap)
             pokemonId = ''
 
-        await setValue(pokeToken, 'name', pokemon.nickname);
-        await setValue(pokeToken, 'level', pokemon.level);
-        await setValue(pokeToken, 'hp', pokemon.stats.hp);
-        await setValue(pokeToken, 'attack', pokemon.stats.atk);
-        await setValue(pokeToken, 'defense', pokemon.stats.def);
-        await setValue(pokeToken, 'spatk', pokemon.stats.spa);
-        await setValue(pokeToken, 'spdef', pokemon.stats.spd);
-        await setValue(pokeToken, 'speed', pokemon.stats.spe);
-        await selectValue(pokeToken, 'pokemon', pokemonId);
-        await selectValue(pokeToken, 'teratype', teraTypeId);
-        await selectValue(pokeToken, 'ability', abilityId);
-        await selectValue(pokeToken, 'helditem', itemId);
-        await selectValue(pokeToken, 'move1', move1Id);
-        await selectValue(pokeToken, 'move2', move2Id);
-        await selectValue(pokeToken, 'move3', move3Id);
-        await selectValue(pokeToken, 'move4', move4Id);
+        await setValue(pokeToken, 'name', pokemon.nickname, 'Nickname');
+        await setValue(pokeToken, 'level', pokemon.level, 'Level');
+        await setValue(pokeToken, 'hp', pokemon.stats.hp, 'HP');
+        await setValue(pokeToken, 'attack', pokemon.stats.atk, 'Attack');
+        await setValue(pokeToken, 'defense', pokemon.stats.def, 'Defense');
+        await setValue(pokeToken, 'spatk', pokemon.stats.spa, 'Sp. Atk');
+        await setValue(pokeToken, 'spdef', pokemon.stats.spd, 'Sp. Def');
+        await setValue(pokeToken, 'speed', pokemon.stats.spe, 'Speed');
+        await selectValue(pokeToken, 'pokemon', pokemonId, 'Pokemon', pokemon.name);
+        await selectValue(pokeToken, 'teratype', teraTypeId, 'Tera Type', pokemon.teraType);
+        await selectValue(pokeToken, 'ability', abilityId, 'Ability', pokemon.ability);
+        await selectValue(pokeToken, 'helditem', itemId, 'Held Item', pokemon.item);
+        await selectValue(pokeToken, 'move1', move1Id, 'Move 1', pokemon.moves[0]);
+        await selectValue(pokeToken, 'move2', move2Id, 'Move 2', pokemon.moves[1]);
+        await selectValue(pokeToken, 'move3', move3Id, 'Move 3', pokemon.moves[2]);
+        await selectValue(pokeToken, 'move4', move4Id, 'Move 4', pokemon.moves[3]);
 
         // Display the timer in the desired format
         console.log('Pokemon "' + pokemon.name + '" submitted (' + getDuration(startTime) + ')');
@@ -463,7 +458,7 @@ function validatePokemon(pokemon) {
     return validations;
 }
 
-async function addPokemon(pokemon) {
+async function addSinglePokemon(pokemon) {
     // Define the URL and headers
     const postUrl = "https://rk9.gg/teamlist/add";
     const headers = {
@@ -483,14 +478,14 @@ async function addPokemon(pokemon) {
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        updateLoadingOverlayPokemon("Adding " + pokemon.name + "...");
+        resetLoadingOverlayProgress("Adding " + pokemon.name + ' ...');
         return response.text();
     } catch (error) {
         console.error("Error:", error);
     }
 }
 
-async function setValue(pokemonId, field, value) {
+async function setValue(pokemonId, field, value, fieldDisplay) {
     if (value) {
         // Define the URL and headers
         const postUrl = "https://rk9.gg/teamlist/update";
@@ -521,14 +516,14 @@ async function setValue(pokemonId, field, value) {
             if (responseData.msg !== "ok") {
                 throw new Error("Response does not contain 'msg' or it's not 'ok'");
             }
-            updateLoadingOverlayProgress("Set " + field + " -> " + value);// Response data captured in the 'data' variable
+            updateLoadingOverlayProgress("Set " + fieldDisplay + " -> " + value);// Response data captured in the 'data' variable
         } catch (error) {
             console.error("Error:", error);
         }
     }
 }
 
-async function selectValue(pokemonId, field, value) {
+async function selectValue(pokemonId, field, value, fieldDisplay, valueDisplay) {
     if (value) {
         // Define the URL and headers
         const postUrl = "https://rk9.gg/teamlist/select?lang=EN";
@@ -559,7 +554,7 @@ async function selectValue(pokemonId, field, value) {
             if (responseData.msg !== "ok") {
                 throw new Error("Response does not contain 'msg' or it's not 'ok'");
             }
-            updateLoadingOverlayProgress("Select " + field + " -> " + value);// Response data captured in the 'data' variable
+            updateLoadingOverlayProgress("Choose " + fieldDisplay + " -> " + valueDisplay);// Response data captured in the 'data' variable
         } catch (error) {
             console.error("Error:", error);
         }

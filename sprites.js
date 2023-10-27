@@ -3,6 +3,7 @@ export function SpritesLink() {
 }
 
 var spritesLink = {
+    "000_000": "https://www.serebii.net/itemdex/sprites/pgl/pokeball.png", // when pokemon is not specified
     "019_001": "https://www.serebii.net/swordshield/pokemon/019-a.png",
     "020_001": "https://www.serebii.net/swordshield/pokemon/020-a.png",
     "025_001": "https://www.serebii.net/swordshield/pokemon/025-a.png",
