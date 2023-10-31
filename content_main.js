@@ -1,12 +1,18 @@
 import { Koffing } from './koff.mjs';
 import { Pokedex } from './pokedex.js';
 import { Natures } from './natures.js';
+import { Abilities } from './abilities.js';
+import { HeldItems } from './heldItems.js';
+import { Moves } from './moves.js';
 import { PokeTranslator } from './TranslatorPokes.js';
 import { SpritesLink } from './sprites.js';
 
 // Global variables
 var pokedex = Pokedex();
 var natures = Natures();
+var abilities = Abilities();
+var moves = Moves();
+var heldItems = HeldItems();
 var pokeTranslator = PokeTranslator();
 var spritesLink = SpritesLink();
 var pokemonMap = '';
@@ -529,19 +535,36 @@ async function addPokemons(convertedPokemons) {
         if (moveMap == '')
             moveMap = await getRk9FieldMap(pokeToken, "move");
 
-        var abilityId = await getId(pokemon.ability, abilityMap)
-        var teraTypeId = await getId(pokemon.teraType, teraMap)
-        var itemId = await getId(pokemon.item, itemMap)
-        var move1Id = await getId(pokemon.moves[0], moveMap)
-        var move2Id = await getId(pokemon.moves[1], moveMap)
-        var move3Id = await getId(pokemon.moves[2], moveMap)
-        var move4Id = await getId(pokemon.moves[3], moveMap)
-
-        // If RK9 uses different ID, we can't automatically find the name
-        // user need to manually choose the pokemon from RK9
-        var pokemonId = pokeTranslator[pokemon.name]
+        // validate the id we use exists in RK9 list
+        // otherwise, we don't submit the request
+        var pokemonId = pokeTranslator[pokemon.name];
         if (!pokemonId in pokemonMap)
-            pokemonId = ''
+            pokemonId = '';
+
+        var abilityId = abilities[pokemon.ability];
+        if (!abilityId in abilityMap)
+            abilityId = '';
+
+        var itemId = heldItems[pokemon.item];
+        if (!itemId in itemMap)
+            itemId = '';
+
+        var teraType = pokemon.teraType;
+        if (!pokemon.teraType in teraMap)
+            teraType = ''
+
+        var move1Id = moves[pokemon.moves[0]];
+        if (!move1Id in moveMap)
+            move1Id = '';
+        var move2Id = moves[pokemon.moves[1]];
+        if (!move2Id in moveMap)
+            move2Id = '';
+        var move3Id = moves[pokemon.moves[2]];
+        if (!move3Id in moveMap)
+            move3Id = '';
+        var move4Id = moves[pokemon.moves[3]];
+        if (!move4Id in moveMap)
+            move4Id = '';
 
         await setValue(pokeToken, 'name', pokemon.nickname, 'Nickname');
         await setValue(pokeToken, 'level', pokemon.level, 'Level');
@@ -552,7 +575,7 @@ async function addPokemons(convertedPokemons) {
         await setValue(pokeToken, 'spdef', pokemon.stats.spd, 'Sp. Def');
         await setValue(pokeToken, 'speed', pokemon.stats.spe, 'Speed');
         await selectValue(pokeToken, 'pokemon', pokemonId, 'Pokemon', pokemon.name);
-        await selectValue(pokeToken, 'teratype', teraTypeId, 'Tera Type', pokemon.teraType);
+        await selectValue(pokeToken, 'teratype', teraType, 'Tera Type', pokemon.teraType);
         await selectValue(pokeToken, 'ability', abilityId, 'Ability', pokemon.ability);
         await selectValue(pokeToken, 'helditem', itemId, 'Held Item', pokemon.item);
         await selectValue(pokeToken, 'move1', move1Id, 'Move 1', pokemon.moves[0]);
@@ -714,19 +737,6 @@ async function getRk9FieldMap(token, field) {
         }
     }
     return storageValue;
-}
-
-async function getId(targetValue, fieldMap) {
-    let resultKey = null;
-
-    for (const key in fieldMap) {
-        if (fieldMap[key] === targetValue) {
-            resultKey = key;
-            break; // Stop the loop once a match is found
-        }
-    }
-
-    return resultKey
 }
 
 function getDuration(startTime) {
