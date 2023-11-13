@@ -197,6 +197,10 @@ async function showValidationOverlay(convertedPokemons) {
     title.style.fontWeight = 'bold';
     container.appendChild(title);
 
+    const header = document.createElement("p");
+    header.textContent = "Some of your Pokemon may be the incorrect level. Please check the following:"
+    container.appendChild(header);
+
     const validationErrorsList = document.createElement("ul");
 
     convertedPokemons.forEach((pokemon) => {
@@ -594,7 +598,7 @@ function validatePokemon(pokemon) {
     var validations = [];
 
     if (pokemon.level < 100) {
-        validations.push("Level is " + pokemon.level + ' (not maxed)');
+        validations.push("Current level is " + pokemon.level);
     }
 
     return validations;
