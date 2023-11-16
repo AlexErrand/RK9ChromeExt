@@ -22,6 +22,7 @@ var itemMap = '';
 var moveMap = '';
 var convertedPokemons = [];
 var allowSubmission = false;
+var languageOption = '';
 
 var cookies = document.cookie;
 //console.log("Cookie:", cookies);
@@ -125,6 +126,33 @@ export function main() {
 
         // Append the button to the button container
         buttonContainer.appendChild(convertButton);
+
+
+        var select = document.createElement("select");
+        select.style.display = "flex"; // Set the container to use flex layout
+        select.style.flexDirection = "column";
+        select.style.marginLeft = "1.0em"; // Adjust the margin as needed
+
+        // Define an array with the language options
+        var languages = ["EN", "DE", "ES", "FR", "IT", "JP", "KO", "SC", "TC"];
+
+        // Iterate through the languages array and create an option for each language
+        languages.forEach(function(language) {
+            var option = document.createElement("option");
+            option.value = language;
+            option.text = language;
+            select.appendChild(option);
+          });
+          
+          // Event listener to update the global variable when a new option is selected
+          select.addEventListener('change', function() {
+            languageOption = this.value;
+            console.log(languageOption); // You can remove this line if console logging is not needed
+          });
+
+
+// Append the select element to the body of the document
+        buttonContainer.appendChild(select);
 
         // Set initial state of the button
         updateButtonState();
@@ -672,6 +700,44 @@ async function setValue(pokemonId, field, value, fieldDisplay) {
 async function selectValue(pokemonId, field, value, fieldDisplay, valueDisplay) {
     if (value) {
         // Define the URL and headers
+        const postUrl = "https://rk9.gg/teamlist/select?lang=" + languageOption;
+        const headers = {
+            "Cookie": cookies
+        };
+
+        const formData = new FormData();
+        formData.append("id", pokemonId + "-" + field);
+        formData.append("value", value);
+
+        // Define the POST request options
+        const requestOptions = {
+            method: 'POST',
+            headers: new Headers(headers),
+            body: formData,
+        };
+
+        // Make the POST request
+        try {
+            const response = await fetch(postUrl, requestOptions);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const responseData = await response.json();
+            if (responseData.msg !== "ok") {
+                throw new Error("Response does not contain 'msg' or it's not 'ok'");
+            }
+            updateLoadingOverlayProgress("Choose " + fieldDisplay + " -> " + valueDisplay);// Response data captured in the 'data' variable
+        } catch (error) {
+            console.log("Error:", error.message);
+        }
+    }
+}
+
+async function setLanguage(language, value, fieldDisplay, valueDisplay){
+    if (value) {
+        // Define the URL and headers
         const postUrl = "https://rk9.gg/teamlist/select?lang=EN";
         const headers = {
             "Cookie": cookies
@@ -705,6 +771,7 @@ async function selectValue(pokemonId, field, value, fieldDisplay, valueDisplay) 
             console.log("Error:", error.message);
         }
     }
+
 }
 
 async function getRk9FieldMap(token, field) {
