@@ -131,7 +131,8 @@ export function main() {
         var select = document.createElement("select");
         select.style.display = "flex"; // Set the container to use flex layout
         select.style.flexDirection = "column";
-        select.style.marginLeft = "1.0em"; // Adjust the margin as needed
+        select.style.marginLeft = "0.5em"; // Adjust the margin as needed
+        select.style.marginBottom = "0.5em";
 
         // Define an array with the language options
         var languages = ["EN", "DE", "ES", "FR", "IT", "JP", "KO", "SC", "TC"];
@@ -147,7 +148,6 @@ export function main() {
           // Event listener to update the global variable when a new option is selected
           select.addEventListener('change', function() {
             languageOption = this.value;
-            console.log(languageOption); // You can remove this line if console logging is not needed
           });
 
 
