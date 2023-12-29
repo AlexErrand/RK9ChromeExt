@@ -182,6 +182,7 @@ var abilities = {
     "Emergency Exit": "194",
     "Water Compaction": "195",
     "Merciless": "196",
+    "Shields Down": "197",
     "Stakeout": "198",
     "Water Bubble": "199",
     "Steelworker": "200",

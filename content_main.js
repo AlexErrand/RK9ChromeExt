@@ -138,20 +138,20 @@ export function main() {
         var languages = ["EN", "DE", "ES", "FR", "IT", "JP", "KO", "SC", "TC"];
 
         // Iterate through the languages array and create an option for each language
-        languages.forEach(function(language) {
+        languages.forEach(function (language) {
             var option = document.createElement("option");
             option.value = language;
             option.text = language;
             select.appendChild(option);
-          });
-          
-          // Event listener to update the global variable when a new option is selected
-          select.addEventListener('change', function() {
+        });
+
+        // Event listener to update the global variable when a new option is selected
+        select.addEventListener('change', function () {
             languageOption = this.value;
-          });
+        });
 
 
-// Append the select element to the body of the document
+        // Append the select element to the body of the document
         buttonContainer.appendChild(select);
 
         // Set initial state of the button
@@ -558,19 +558,19 @@ async function addPokemons(convertedPokemons) {
 
         if (pokemonMap == '')
             pokemonMap = await getRk9FieldMap(pokeToken, "pokemon");
-            //console.log(pokemonMap)
+        //console.log(pokemonMap)
         if (teraMap == '')
             teraMap = await getRk9FieldMap(pokeToken, "teratype");
 
         if (abilityMap == '')
             abilityMap = await getRk9FieldMap(pokeToken, "ability");
-            console.log(abilityMap)
+        console.log(abilityMap)
         if (itemMap == '')
             itemMap = await getRk9FieldMap(pokeToken, "helditem");
-            console.log(itemMap)
+        console.log(itemMap)
         if (moveMap == '')
             moveMap = await getRk9FieldMap(pokeToken, "move");
-            console.log(moveMap)
+        console.log(moveMap)
 
         // validate the id we use exists in RK9 list
         // otherwise, we don't submit the request
@@ -740,7 +740,7 @@ async function selectValue(pokemonId, field, value, fieldDisplay, valueDisplay) 
     }
 }
 
-async function setLanguage(language, value, fieldDisplay, valueDisplay){
+async function setLanguage(language, value, fieldDisplay, valueDisplay) {
     if (value) {
         // Define the URL and headers
         const postUrl = "https://rk9.gg/teamlist/select?lang=EN";
@@ -801,7 +801,7 @@ async function getRk9FieldMap(token, field) {
         try {
             const response = await fetch(getUrl, requestOptions);
             console.log(response)
-            
+
 
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
@@ -810,7 +810,7 @@ async function getRk9FieldMap(token, field) {
             const responseData = await response.json();
             console.log(responseData)
             storageValue = responseData
-            
+
             sessionStorage.setItem(field, JSON.stringify(storageValue));
         } catch (error) {
             console.log("Error:", error.message);
@@ -858,8 +858,21 @@ function updateSprites() {
         // Get the data attributes for data-number and data-form
         var dataNumber = div.getAttribute("data-number");
         var dataForm = div.getAttribute("data-form");
+        var imgElement = div.querySelector("img");
 
         // Create a new img link based on data-number and data-form
+        if (dataNumber == null) {
+            // this is the sprites from the "Show Team List"
+            var existingImgUrl = imgElement.src;
+            var url = new URL(existingImgUrl);
+            var pathParts = url.pathname.split('/');
+            var fileName = pathParts[pathParts.length-1];
+        
+            // Extract the numeric part
+            dataNumber = fileName.replace(/\D/g, '');
+            dataForm = "000"
+        }
+        
         var newImgLink = "https://www.serebii.net/scarletviolet/pokemon/new/" + dataNumber + ".png";
 
         var index = dataNumber + "_" + dataForm;
@@ -867,10 +880,9 @@ function updateSprites() {
             newImgLink = spritesLink[index];
 
         // Reset the margin height for the img
-        var imgElement = div.querySelector("img");
         imgElement.src = newImgLink;
-        imgElement.style.margin = "0"; // Set margin to 0px
-        imgElement.style.height = "128px" // Set height to 128px
+        imgElement.style.margin = "12"; // Set margin to 12px
+        imgElement.style.height = "128px"; // Set height to 128px
     });
 }
 
