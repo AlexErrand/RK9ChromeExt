@@ -1323,5 +1323,11 @@ var pokeTranslator = {
     "Ogerpon-Wellspring-Tera": "1017_005",
     "Ogerpon-Hearthflame-Tera": "1017_006",
     "Ogerpon-Cornerstone-Tera": "1017_007",
+    "Archaludon": "1018_000",
+    "Hydrapple": "1019_000",
+    "Gouging Fire": "1020_000",
+    "Raging Bolt": "1021_000",
+    "Iron Boulder": "1022_000",
+    "Iron Crown": "1023_000",
     "MissingNo.": "000_000"
 }

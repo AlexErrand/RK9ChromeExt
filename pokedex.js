@@ -10563,6 +10563,54 @@ var pokedex = {
         "spd": 96,
         "spe": 110
     },
+    "Archaludon": {
+        "hp": 90,
+        "atk": 105,
+        "def": 130,
+        "spa": 125,
+        "spd": 65,
+        "spe": 85
+    },
+    "Hydrapple": {
+        "hp": 106,
+        "atk": 80,
+        "def": 110,
+        "spa": 120,
+        "spd": 80,
+        "spe": 44
+    },
+    "Gouging Fire": {
+        "hp": 105,
+        "atk": 115,
+        "def": 121,
+        "spa": 65,
+        "spd": 93,
+        "spe": 91
+    },
+    "Raging Bolt": {
+        "hp": 125,
+        "atk": 73,
+        "def": 91,
+        "spa": 137,
+        "spd": 89,
+        "spe": 75
+    },
+    "Iron Boulder": {
+        "hp": 90,
+        "atk": 120,
+        "def": 80,
+        "spa": 68,
+        "spd": 108,
+        "spe": 124
+    },
+    "Iron Crown": {
+        "hp": 90,
+        "atk": 72,
+        "def": 100,
+        "spa": 122,
+        "spd": 108,
+        "spe": 98
+    },
     "MissingNo.": {
         "hp": 33,
         "atk": 136,

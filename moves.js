@@ -673,5 +673,18 @@ var moves = {
     "Yawn": "281",
     "Zap Cannon": "192",
     "Zen Headbutt": "428",
-    "Zing Zap": "716"
+    "Zing Zap": "716",
+    "Electro Shot": "1154",
+    "Fickle Beam": "1155",
+    "Thunderclap": "1156",
+    "Tachyon Cutter": "1157",
+    "Hard Press": "1158",
+    "Dragon Cheer": "1159",
+    "Temper Flare": "1160",
+    "Psychic Noise": "1161",
+    "Upper Hand": "1162",
+    "Burning Bulwark": "1163",
+    "Mighty Cleave": "1164",
+    "Alluring Voice": "1165",
+    "Supercell Slam": "1166"
 }

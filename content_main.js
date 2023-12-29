@@ -558,14 +558,19 @@ async function addPokemons(convertedPokemons) {
 
         if (pokemonMap == '')
             pokemonMap = await getRk9FieldMap(pokeToken, "pokemon");
+            //console.log(pokemonMap)
         if (teraMap == '')
             teraMap = await getRk9FieldMap(pokeToken, "teratype");
+
         if (abilityMap == '')
             abilityMap = await getRk9FieldMap(pokeToken, "ability");
+            console.log(abilityMap)
         if (itemMap == '')
             itemMap = await getRk9FieldMap(pokeToken, "helditem");
+            console.log(itemMap)
         if (moveMap == '')
             moveMap = await getRk9FieldMap(pokeToken, "move");
+            console.log(moveMap)
 
         // validate the id we use exists in RK9 list
         // otherwise, we don't submit the request
@@ -795,13 +800,17 @@ async function getRk9FieldMap(token, field) {
         // Make the POST request
         try {
             const response = await fetch(getUrl, requestOptions);
+            console.log(response)
+            
 
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
 
             const responseData = await response.json();
+            console.log(responseData)
             storageValue = responseData
+            
             sessionStorage.setItem(field, JSON.stringify(storageValue));
         } catch (error) {
             console.log("Error:", error.message);
