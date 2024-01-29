@@ -863,16 +863,22 @@ function updateSprites() {
         // Create a new img link based on data-number and data-form
         if (dataNumber == null) {
             // this is the sprites from the "Show Team List"
+            // existing link looks like: https://storage.googleapis.com/files.rk9labs.com/sprites/broadcast/987_000.png
             var existingImgUrl = imgElement.src;
             var url = new URL(existingImgUrl);
             var pathParts = url.pathname.split('/');
-            var fileName = pathParts[pathParts.length-1];
-        
+            // 987_000.png
+            var fileName = pathParts[pathParts.length - 1];
+            // 987_000
+            var fileNameWithoutExtension = fileName.replace(/\.[^/.]+$/, "");
+
             // Extract the numeric part
-            dataNumber = fileName.replace(/\D/g, '');
-            dataForm = "000"
+            var parts = fileNameWithoutExtension.split("_");
+            dataNumber = parts[0];
+            // default to 000 if rk9 doesn't provide us the form
+            dataForm = parts.length > 1 ? parts[1] : "000";
         }
-        
+
         var newImgLink = "https://www.serebii.net/scarletviolet/pokemon/new/" + dataNumber + ".png";
 
         var index = dataNumber + "_" + dataForm;
