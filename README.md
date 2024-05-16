@@ -12,8 +12,9 @@ Credit to @Yugib0y on Twitter for the logo!
 Patch Notes:
 
 Bug fix:
-- Fixed issue that Pokémon in Show Team List are not displayed correctly
-- Added new Indigo Disk DLC additions of Pokemon and Moves.
+- Added Terapagos and Tera Starstorm
+- Added missing moves and abilities for restricted pokemon introduced in Regulation G
+- Fixed rounding error for Effort Values (Thank you Jorjin (@JoriVGC) for bringing up this issue)
 
 # Installation Instructions
 

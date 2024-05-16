@@ -1163,9 +1163,7 @@ var pokeTranslator = {
     "Drakloak": "886_000",
     "Dragapult": "887_000",
     "Zacian": "888_000",
-    "Zacian-Crowned": "888_000",
     "Zamazenta": "889_000",
-    "Zamazenta-Crowned": "889_000",
     "Eternatus": "890_000",
     "Eternatus-Eternamax": "890_000",
     "Kubfu": "891_000",
@@ -1329,5 +1327,6 @@ var pokeTranslator = {
     "Raging Bolt": "1021_000",
     "Iron Boulder": "1022_000",
     "Iron Crown": "1023_000",
+    "Terapagos": "1024_000", 
     "MissingNo.": "000_000"
 }

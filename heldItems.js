@@ -219,5 +219,13 @@ var heldItems = {
     "Wise Glasses": "67",
     "Yache Berry": "174",
     "Zap Plate": "212",
-    "Zoom Lens": "76"
+    "Zoom Lens": "76",
+    "Adamant Crystal": "247",
+    "Lustrous Globe": "248",
+    "Griseous Core": "249",
+    "Rusted Sword": "194",
+    "Rusted Shield": "195",
+    "Adamant Orb": "62",
+    "Lustrous Orb": "63",
+    "Griseous Orb": "64"
 }

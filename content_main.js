@@ -25,7 +25,7 @@ var allowSubmission = false;
 var languageOption = '';
 
 var cookies = document.cookie;
-//console.log("Cookie:", cookies);
+console.log("Cookie:", cookies);
 
 var Pokemon = class {
     constructor() {
@@ -472,10 +472,10 @@ function getStats(poke, ivs, evs, level, nat) {
 
     for (const [key, value] of Object.entries(baseStats)) {
         if (key == 'hp') {
-            var stat = Math.floor(((((2 * baseStats.hp) + (evs.hp / 4) + ivs.hp) * level) / 100) + level + 10);
+            var stat = Math.floor(((((2 * baseStats.hp) + Math.floor(evs.hp / 4) + ivs.hp) * level) / 100) + level + 10);
             ret['hp'] = stat;
         } else {
-            var stat = Math.floor(Math.floor((((((2 * baseStats[key]) + (evs[key] / 4) + ivs[key]) * level) / 100) + 5)) * nature[key]);
+            var stat = Math.floor(Math.floor((((((2 * baseStats[key]) + Math.floor(evs[key] / 4) + ivs[key]) * level) / 100) + 5)) * nature[key]);
             ret[key] = stat;
         }
     }
@@ -519,6 +519,10 @@ async function convertShowDownList(paste) {
                 }
             }
 
+            if (ability.includes("As One")) {
+                ability = "As One";
+            }
+
             var stats = getStats(name, ivs, evs, level, nature);
 
             var pokemon = new Pokemon()
@@ -558,7 +562,7 @@ async function addPokemons(convertedPokemons) {
 
         if (pokemonMap == '')
             pokemonMap = await getRk9FieldMap(pokeToken, "pokemon");
-        //console.log(pokemonMap)
+        console.log(pokemonMap)
         if (teraMap == '')
             teraMap = await getRk9FieldMap(pokeToken, "teratype");
 

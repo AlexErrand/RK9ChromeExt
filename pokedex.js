@@ -9283,14 +9283,6 @@ var pokedex = {
         "spd": 115,
         "spe": 138
     },
-    "Zacian-Crowned": {
-        "hp": 92,
-        "atk": 150,
-        "def": 115,
-        "spa": 80,
-        "spd": 115,
-        "spe": 148
-    },
     "Zamazenta": {
         "hp": 92,
         "atk": 120,
@@ -9299,28 +9291,12 @@ var pokedex = {
         "spd": 115,
         "spe": 138
     },
-    "Zamazenta-Crowned": {
-        "hp": 92,
-        "atk": 120,
-        "def": 140,
-        "spa": 80,
-        "spd": 140,
-        "spe": 128
-    },
     "Eternatus": {
         "hp": 140,
         "atk": 85,
         "def": 95,
         "spa": 145,
         "spd": 95,
-        "spe": 130
-    },
-    "Eternatus-Eternamax": {
-        "hp": 255,
-        "atk": 115,
-        "def": 250,
-        "spa": 125,
-        "spd": 250,
         "spe": 130
     },
     "Kubfu": {
@@ -10610,6 +10586,15 @@ var pokedex = {
         "spa": 122,
         "spd": 108,
         "spe": 98
+    },
+    "Terapagos": 
+    {
+        "hp": 90,
+        "atk": 65,
+        "def": 85,
+        "spa": 65,
+        "spd": 85,
+        "spe": 60
     },
     "MissingNo.": {
         "hp": 33,
