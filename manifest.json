@@ -1,13 +1,18 @@
 {
   "name": "Extreme Speed - VGC Companion",
-  "version": "1.4",
+  "version": "1.5",
   "description": "RK9Labs Extension that allows you to use your showdown paste to submit your team for real life VGC events with ease.",
   "manifest_version": 3,
-  "host_permissions": ["https://rk9.gg/teamlist/*"],
+  "host_permissions": ["https://rk9.gg/teamlist/*", "https://play.pokemonshowdown.com/*"],
   "content_scripts": [
     {
       "matches": ["https://rk9.gg/teamlist/index"],
       "js": ["content_script.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://play.pokemonshowdown.com/battle-gen9vgc2024regg-*"],  
+      "js": ["showdownmoveots.js"],
       "run_at": "document_end"
     }
   ],
