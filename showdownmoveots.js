@@ -62,27 +62,6 @@ function checkURL() {
                                 infoboxClone.style.fontSize = '10px';
                                 infoboxClone.style.display = 'block';
 
-                                // Trying to extract only the first Pokémon entry, not working atm
-                                const details = infoboxClone.querySelector('details');
-                                if (details) {
-                                    const piconElements = details.querySelectorAll('.picon');
-                                    if (piconElements.length > 1) {
-                                        let firstPokemonHtml = '';
-                                        let foundFirst = false;
-                                        details.childNodes.forEach(node => {
-                                            if (node.nodeType === Node.ELEMENT_NODE && node.classList.contains('picon')) {
-                                                if (!foundFirst) {
-                                                    foundFirst = true;
-                                                    firstPokemonHtml += node.outerHTML;
-                                                }
-                                            } else if (foundFirst) {
-                                                firstPokemonHtml += node.outerHTML;
-                                            }
-                                        });
-                                        details.innerHTML = firstPokemonHtml;
-                                    }
-                                }
-
                                 // Append the cloned infobox below the battle controls
                                 battleControls.appendChild(infoboxClone);
                                 console.log("Infobox cloned, styled, and moved below battle controls with only the first Pokémon.");
