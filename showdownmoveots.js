@@ -1,17 +1,17 @@
 // showdownmovetots.js
-//this version technically works, but the OTS has to be loaded prior, as when starting a new game it will load in the bo3 tab
-//also the OTS tab closes on its own
+//Issue for loading in tab other than battle tab fixed, but need to fix issues regarding the agreement of open sheet
 console.log("EXTREMESPEED DETECTS SHOWDOWN REG G GAME");
 
 let lastCheckedURL = '';
 let opponentUsername = '';
+let infoboxCloned = false;
 
-// Function to check if the current page is a Regulation G game
-function checkRegulationGGame() {
+function checkURL() {
     const urlPattern = /https:\/\/play\.pokemonshowdown\.com\/battle-gen9vgc2024regg(?:bo3)?-/;
     const suffixPattern = /https:\/\/play\.pokemonshowdown\.com\/battle-gen9vgc2024regg(?:bo3)?-(.*)/;
+    const excludePattern = /https:\/\/play\.pokemonshowdown\.com\/game-bestof3-gen9vgc2024regg-/;
 
-    if (urlPattern.test(window.location.href)) {
+    if (urlPattern.test(window.location.href) && !excludePattern.test(window.location.href)) {
         const match = window.location.href.match(suffixPattern);
         const suffix = match ? match[1] : 'No suffix found';
 
@@ -40,84 +40,86 @@ function checkRegulationGGame() {
             const currentUsername = usernameElement.getAttribute('data-name').trim();
             console.log("CURRENT USER IS: " + currentUsername);
 
-            // Start checking for the infobox every 2 seconds
-            const infoboxCheckInterval = setInterval(() => {
-                console.log("Checking for infobox...");
-                const infoboxes = document.querySelectorAll('.infobox details summary');
-                let infoboxFound = false;
+            // Check for the infobox with the opponent's name
+            const infoboxes = document.querySelectorAll('.infobox details summary');
+            infoboxes.forEach(summary => {
+                const summaryText = summary.textContent || summary.innerText;
+                const opponentNameMatch = summaryText.match(/Open Team Sheet for (.+)/);
+                if (opponentNameMatch) {
+                    const opponentName = opponentNameMatch[1].trim();
+                    if (opponentName === opponentUsername && !infoboxCloned) {
+                        console.log(`Open Team sheet for ${opponentName} is present`);
 
-                infoboxes.forEach(summary => {
-                    const summaryText = summary.textContent || summary.innerText;
-                    const opponentNameMatch = summaryText.match(/Open Team Sheet for (.+)/);
-                    if (opponentNameMatch) {
-                        const opponentName = opponentNameMatch[1].trim();
-                        if (opponentName === opponentUsername) {
-                            console.log(`Open Team sheet for ${opponentName} is present`);
+                        // Find the infobox element
+                        const infoboxElement = summary.parentElement;
+                        if (infoboxElement) {
+                            // Find the battle controls element
+                            const battleControls = document.querySelector('.battle-controls');
+                            if (battleControls) {
+                                // Remove any existing cloned infoboxes
+                                const existingClones = battleControls.querySelectorAll('.infobox.clone');
+                                existingClones.forEach(clone => clone.remove());
 
-                            // Find the infobox element
-                            const infoboxElement = summary.parentElement;
-                            if (infoboxElement) {
-                                // Find the battle controls element
-                                const battleControls = document.querySelector('.battle-controls');
-                                if (battleControls) {
-                                    // Remove any existing cloned infoboxes
-                                    const existingClones = battleControls.querySelectorAll('.infobox.clone');
-                                    existingClones.forEach(clone => clone.remove());
+                                // Clone the infobox element and retain its class
+                                const infoboxClone = infoboxElement.cloneNode(true);
+                                infoboxClone.classList.add('infobox', 'clone');
+                                
+                                // Adjust the styles
+                                infoboxClone.style.fontSize = '10px';
+                                infoboxClone.style.display = 'block';
 
-                                    // Clone the infobox element and retain its class
-                                    const infoboxClone = infoboxElement.cloneNode(true);
-                                    infoboxClone.classList.add('infobox', 'clone');
+                                // Append the cloned infobox below the battle controls
+                                battleControls.appendChild(infoboxClone);
+                                console.log("Infobox cloned, styled, and moved below battle controls.");
 
-                                    // Adjust the styles
-                                    infoboxClone.style.fontSize = '10px';
-                                    infoboxClone.style.display = 'block';
-
-                                    // Append the cloned infobox below the battle controls
-                                    battleControls.appendChild(infoboxClone);
-                                    console.log("Infobox cloned, styled, and moved below battle controls.");
-
-                                    infoboxFound = true;
-                                    clearInterval(infoboxCheckInterval);
-                                } else {
-                                    console.log("Battle controls element not found.");
-                                }
+                                // Mark the infobox as cloned
+                                infoboxCloned = true;
                             } else {
-                                console.log("Infobox element not found.");
+                                console.log("Battle controls element not found.");
                             }
                         } else {
-                            console.log(`Skipping infobox for: ${opponentName}`);
+                            console.log("Infobox element not found.");
                         }
+                    } else {
+                        console.log(`Skipping infobox for: ${opponentName}`);
                     }
-                });
-
-                if (!infoboxFound) {
-                    console.log("Infobox not found, continuing to check...");
                 }
-            }, 2000);
+            });
         } else {
             console.log("Username element not found.");
         }
+    } else {
+        console.log("URL does not match the pattern for Regulation G game or is a Best of 3 game.");
     }
 }
 
+// Function to check periodically if the infobox is loaded
+function checkForInfobox() {
+    console.log("Checking for infobox...");
+    checkURL();
+}
+
 // Initial check when the script loads
-checkRegulationGGame();
+checkURL();
 
 // Listen for URL changes using history API methods
 const pushState = history.pushState;
 history.pushState = function() {
     pushState.apply(history, arguments);
-    checkRegulationGGame();
+    checkURL();
 };
 
 const replaceState = history.replaceState;
 history.replaceState = function() {
     replaceState.apply(history, arguments);
-    checkRegulationGGame();
+    checkURL();
 };
 
-window.addEventListener('popstate', checkRegulationGGame);
+window.addEventListener('popstate', checkURL);
 
 // MutationObserver to detect changes in the DOM that may correspond to URL changes
-const observer = new MutationObserver(checkRegulationGGame);
+const observer = new MutationObserver(checkURL);
 observer.observe(document.body, { childList: true, subtree: true });
+
+// Set an interval to check for the infobox periodically
+setInterval(checkForInfobox, 2000);
