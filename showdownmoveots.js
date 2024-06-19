@@ -1,5 +1,6 @@
 // showdownmovetots.js
 //Issue for loading in tab other than battle tab fixed, but need to fix issues regarding the agreement of open sheet
+//issue staying loaded on the page after the user begins selecting pokemon or moves on Best of 3 ladder
 console.log("EXTREMESPEED DETECTS SHOWDOWN REG G GAME");
 
 let lastCheckedURL = '';

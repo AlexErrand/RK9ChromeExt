@@ -11,7 +11,7 @@
       "run_at": "document_end"
     },
     {
-      "matches": ["https://play.pokemonshowdown.com/battle-gen9vgc2024regg-*"],  
+      "matches": ["https://play.pokemonshowdown.com/battle-gen9vgc2024reggbo3-*"],  
       "js": ["showdownmoveots.js"],
       "run_at": "document_end"
     }
