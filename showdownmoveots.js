@@ -1,5 +1,6 @@
 // showdownmovetots.js
 //this version technically works, but the OTS has to be loaded prior, as when starting a new game it will load in the bo3 tab
+//also the OTS tab closes on its own
 console.log("EXTREMESPEED DETECTS SHOWDOWN REG G GAME");
 
 let lastCheckedURL = '';
