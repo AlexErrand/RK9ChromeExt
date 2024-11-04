@@ -1330,3 +1330,13 @@ var pokeTranslator = {
     "Terapagos": "1024_000", 
     "MissingNo.": "000_000"
 }
+
+for (var key in pokeTranslator) {
+    var value = pokeTranslator[key];
+    var underscoreIndex = value.indexOf('_');
+    if (underscoreIndex !== -1) {
+        pokeTranslator[key] = value.slice(0, underscoreIndex);
+    }
+}
+
+console.log(pokeTranslator);
