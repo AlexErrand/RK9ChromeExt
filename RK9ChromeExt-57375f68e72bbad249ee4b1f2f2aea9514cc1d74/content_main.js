@@ -23,6 +23,8 @@ var moveMap = '';
 var convertedPokemons = [];
 var allowSubmission = false;
 var languageOption = '';
+const finishedJingle = new Audio('./assets/audio/pokecenterjingle.mp3');
+const loadingJingle = new Audio('./assets/audio/teamloading.mp3');
 
 var cookies = document.cookie;
 console.log("Cookie:", cookies);
@@ -663,6 +665,7 @@ async function addPokemons(convertedPokemons) {
     };
     console.log("Totally taken " + getDuration(startTime));
     hideLoadingOverlay(); // Hide loading overlay when the process is complete
+
 }
 
 function validatePokemon(pokemon) {
