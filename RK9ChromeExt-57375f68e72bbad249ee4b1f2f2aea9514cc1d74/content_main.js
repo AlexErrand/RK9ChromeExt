@@ -23,8 +23,8 @@ var moveMap = '';
 var convertedPokemons = [];
 var allowSubmission = false;
 var languageOption = '';
-const loadingJingle = new Audio(chrome.runtime.getURL("assets/audio/pokecenterjingle.mp3"));
-const finishedJingle = new Audio(chrome.runtime.getURL("assets/audio/teamloading.mp3"));
+const loadingJingle = new Audio(chrome.runtime.getURL("assets/audio/teamloading.mp3"));
+const finishedJingle = new Audio(chrome.runtime.getURL("assets/audio/pokecenterjingle.mp3"));
 var cookies = document.cookie;
 console.log("Cookie:", cookies);
 
@@ -160,6 +160,7 @@ export function main() {
 
         convertButton.addEventListener("click", async function () {
             try {
+                loadingJingle.play();
                 var [convertedPokemons, hasValidations] = await convertShowDownList(showDownListBox.value);
                 if (hasValidations) {
                     await showValidationOverlay(convertedPokemons);
@@ -299,6 +300,8 @@ async function showValidationOverlay(convertedPokemons) {
 }
 
 async function showConfirmationOverlay() {
+    loadingJingle.pause();
+    finishedJingle.play();
     const confirmationOverlay = document.createElement("div");
     confirmationOverlay.id = "confirmation-overlay";
     confirmationOverlay.style = overlayStyle; // Apply your desired styles
@@ -584,7 +587,7 @@ async function convertShowDownList(paste) {
 }
 
 async function addPokemons(convertedPokemons) {
-    loadingJingle.play();
+    
     showLoadingOverlay(); // Show loading overlay
     var startTime = new Date().getTime(); // Get the current time
 
@@ -665,8 +668,7 @@ async function addPokemons(convertedPokemons) {
     };
     console.log("Totally taken " + getDuration(startTime));
     hideLoadingOverlay(); // Hide loading overlay when the process is complete
-    loadingJingle.pause();
-    finishedJingle.play();
+    loadingJingle.play();
 
 }
 
