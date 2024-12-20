@@ -23,9 +23,8 @@ var moveMap = '';
 var convertedPokemons = [];
 var allowSubmission = false;
 var languageOption = '';
-const finishedJingle = new Audio('./assets/audio/pokecenterjingle.mp3');
-const loadingJingle = new Audio('./assets/audio/teamloading.mp3');
-
+const loadingJingle = new Audio(chrome.runtime.getURL("assets/audio/pokecenterjingle.mp3"));
+const finishedJingle = new Audio(chrome.runtime.getURL("assets/audio/teamloading.mp3"));
 var cookies = document.cookie;
 console.log("Cookie:", cookies);
 
@@ -585,6 +584,7 @@ async function convertShowDownList(paste) {
 }
 
 async function addPokemons(convertedPokemons) {
+    loadingJingle.play();
     showLoadingOverlay(); // Show loading overlay
     var startTime = new Date().getTime(); // Get the current time
 
@@ -665,6 +665,8 @@ async function addPokemons(convertedPokemons) {
     };
     console.log("Totally taken " + getDuration(startTime));
     hideLoadingOverlay(); // Hide loading overlay when the process is complete
+    loadingJingle.pause();
+    finishedJingle.play();
 
 }
 
