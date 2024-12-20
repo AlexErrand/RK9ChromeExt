@@ -483,9 +483,43 @@ function getStats(poke, ivs, evs, level, nat) {
     return ret
 }
 
+async function fetchPokepasteContent(url) {
+    try {
+        if (!url.trim().endsWith('/json')) {
+            url = url.trim() + '/json';
+        }
+
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error("Failed to fetch PokePaste content");
+        }
+
+        const data = await response.json();
+        return data.paste.replaceAll('\r', '');
+    } catch (error) {
+        console.error("Error fetching PokePaste content:", error.message);
+        throw new Error("Could not fetch Pokémon data from the URL.");
+    }
+}
+
+function isValidUrl(input) {
+    try {
+        new URL(input);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 // Function to remove the container
 async function convertShowDownList(paste) {
     try {
+
+        // Check if the input is a URL
+        if (isValidUrl(paste)) {
+            paste = await fetchPokepasteContent(paste);
+        }
+
         convertedPokemons = [];
         var hasValidations = false;
         var parsedTeam = Koffing.parse(paste);
