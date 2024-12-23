@@ -185,6 +185,7 @@ export function main() {
         cancelButton.style.backgroundColor = "lightblue";
         cancelButton.style.marginTop = "0.5em"; // Adjust the margin as needed
         cancelButton.addEventListener("click", function () {
+             
             showDownContainer.parentNode.removeChild(showDownContainer);
             showDownButton.disabled = false; // Re-enable the "New Button"
             showDownButton.style.backgroundColor = "lightblue"; // Restore the background color
@@ -269,7 +270,6 @@ async function showValidationOverlay(convertedPokemons) {
         // Handle the "Continue" button click
         validationOverlay.style.display = "none"; // Hide the overlay
         allowSubmission = true;
-        // Continue with your code here
     });
     buttonContainer.appendChild(continueButton);
 
@@ -279,6 +279,8 @@ async function showValidationOverlay(convertedPokemons) {
     cancelButton.style.marginLeft = "0.5em"; // Adjust the margin as needed
     cancelButton.style.backgroundColor = "lightblue";
     cancelButton.addEventListener("click", function () {
+        loadingJingle.pause();
+        loadingJingle.currentTime = 0;
         // Handle the "Cancel" button click
         validationOverlay.style.display = "none"; // Hide the overlay
         // Handle the cancellation as needed
@@ -523,6 +525,8 @@ async function convertShowDownList(paste) {
         if (isValidUrl(paste)) {
             paste = await fetchPokepasteContent(paste);
         }
+
+        paste = paste.replace(/Vivillon-\w+/g, "Vivillon");
 
         convertedPokemons = [];
         var hasValidations = false;
