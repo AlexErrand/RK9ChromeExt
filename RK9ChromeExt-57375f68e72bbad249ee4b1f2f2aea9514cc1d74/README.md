@@ -10,11 +10,12 @@ is fully responsible for their submission.
 Credit to @Yugib0y on Twitter for the logo!
 
 Patch Notes:
+- Audio queues have been added for the sending of team info to RK9 and when it is complete
 
 Bug fix:
-- Added Terapagos and Tera Starstorm
-- Added missing moves and abilities for restricted pokemon introduced in Regulation G
-- Fixed rounding error for Effort Values (Thank you Jorjin (@JoriVGC) for bringing up this issue)
+- Fixed an error where Vivillon would not be submittable
+- Fixed a bug where Calyrex would not upload correctly
+- Code cleanup
 
 # Installation Instructions
 

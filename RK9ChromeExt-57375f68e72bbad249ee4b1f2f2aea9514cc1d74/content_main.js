@@ -402,7 +402,6 @@ async function showErrorOverlay(message) {
     okButton.addEventListener("click", function () {
         // Handle the "Continue" button click
         errorOverlay.style.display = "none"; // Hide the overlay
-        // Continue with your code here
     });
     buttonContainer.appendChild(okButton);
 
