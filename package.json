@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "pokeapi-js-wrapper": "^1.2.3"
-  },
-  "type": "module"
-}
