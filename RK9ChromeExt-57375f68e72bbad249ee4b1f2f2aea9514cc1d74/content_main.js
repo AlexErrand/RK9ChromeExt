@@ -24,8 +24,7 @@ var convertedPokemons = [];
 var allowSubmission = false;
 var languageOption = '';
 const loadingJingle = new Audio(chrome.runtime.getURL("assets/audio/teamloading.mp3"));
-const finishedJingle = new Audio(chrome.runtime.getURL("assets/audio/pokecenterjingle.mp3"));
-loadingJingle.loop = true;
+const finishedJingle = new Audio(chrome.runtime.getURL("assets/audio/pokecenterjingle.mp3"));s
 var cookies = document.cookie;
 console.log("Cookie:", cookies);
 
@@ -162,6 +161,7 @@ export function main() {
         convertButton.addEventListener("click", async function () {
             try {
                 loadingJingle.play();
+                loadingJingle.loop = true;
                 var [convertedPokemons, hasValidations] = await convertShowDownList(showDownListBox.value);
                 if (hasValidations) {
                     await showValidationOverlay(convertedPokemons);
@@ -271,6 +271,7 @@ async function showValidationOverlay(convertedPokemons) {
     continueButton.addEventListener("click", function () {
         // Handle the "Continue" button click
         loadingJingle.play();
+        loadingJingle.loop = true;
         validationOverlay.style.display = "none"; // Hide the overlay
         allowSubmission = true;
     });
@@ -532,6 +533,7 @@ async function convertShowDownList(paste) {
             paste = await fetchPokepasteContent(paste);
         }
         loadingJingle.play();
+        loadingJingle.loop = true;
         paste = paste.replace(/Vivillon-\w+/g, "Vivillon");
 
         convertedPokemons = [];
@@ -679,6 +681,7 @@ async function addPokemons(convertedPokemons) {
     console.log("Totally taken " + getDuration(startTime));
     hideLoadingOverlay(); // Hide loading overlay when the process is complete
     loadingJingle.play();
+    loadingJingle.loop = true;
 
 }
 
