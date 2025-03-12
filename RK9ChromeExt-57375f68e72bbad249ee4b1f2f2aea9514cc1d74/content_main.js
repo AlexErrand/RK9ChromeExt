@@ -25,6 +25,7 @@ var allowSubmission = false;
 var languageOption = '';
 const loadingJingle = new Audio(chrome.runtime.getURL("assets/audio/teamloading.mp3"));
 const finishedJingle = new Audio(chrome.runtime.getURL("assets/audio/pokecenterjingle.mp3"));
+loadingJingle.loop = true;
 var cookies = document.cookie;
 console.log("Cookie:", cookies);
 
@@ -210,6 +211,7 @@ export function main() {
 }
 
 async function showValidationOverlay(convertedPokemons) {
+    loadingJingle.pause();
     const validationOverlay = document.createElement("div");
     validationOverlay.id = "validation-overlay";
     validationOverlay.style = overlayStyle; // Apply your desired styles
@@ -268,6 +270,7 @@ async function showValidationOverlay(convertedPokemons) {
     continueButton.style.backgroundColor = "lightblue";
     continueButton.addEventListener("click", function () {
         // Handle the "Continue" button click
+        loadingJingle.play();
         validationOverlay.style.display = "none"; // Hide the overlay
         allowSubmission = true;
     });
@@ -496,12 +499,15 @@ async function fetchPokepasteContent(url) {
 
         const response = await fetch(url);
         if (!response.ok) {
+            loadingJingle.pause();
             throw new Error("Failed to fetch PokePaste content");
+            
         }
 
         const data = await response.json();
         return data.paste.replaceAll('\r', '');
     } catch (error) {
+        loadingJingle.pause();
         console.error("Error fetching PokePaste content:", error.message);
         throw new Error("Could not fetch Pokémon data from the URL.");
     }
@@ -512,6 +518,7 @@ function isValidUrl(input) {
         new URL(input);
         return true;
     } catch {
+        loadingJingle.pause();
         return false;
     }
 }
@@ -524,7 +531,7 @@ async function convertShowDownList(paste) {
         if (isValidUrl(paste)) {
             paste = await fetchPokepasteContent(paste);
         }
-
+        loadingJingle.play();
         paste = paste.replace(/Vivillon-\w+/g, "Vivillon");
 
         convertedPokemons = [];
