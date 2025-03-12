@@ -24,7 +24,8 @@ var convertedPokemons = [];
 var allowSubmission = false;
 var languageOption = '';
 const loadingJingle = new Audio(chrome.runtime.getURL("assets/audio/teamloading.mp3"));
-const finishedJingle = new Audio(chrome.runtime.getURL("assets/audio/pokecenterjingle.mp3"));s
+loadingJingle.loop = true;
+const finishedJingle = new Audio(chrome.runtime.getURL("assets/audio/pokecenterjingle.mp3"));
 var cookies = document.cookie;
 console.log("Cookie:", cookies);
 
@@ -160,8 +161,6 @@ export function main() {
 
         convertButton.addEventListener("click", async function () {
             try {
-                loadingJingle.play();
-                loadingJingle.loop = true;
                 var [convertedPokemons, hasValidations] = await convertShowDownList(showDownListBox.value);
                 if (hasValidations) {
                     await showValidationOverlay(convertedPokemons);
@@ -283,7 +282,6 @@ async function showValidationOverlay(convertedPokemons) {
     cancelButton.style.marginLeft = "0.5em"; // Adjust the margin as needed
     cancelButton.style.backgroundColor = "lightblue";
     cancelButton.addEventListener("click", function () {
-        loadingJingle.pause();
         loadingJingle.currentTime = 0;
         // Handle the "Cancel" button click
         validationOverlay.style.display = "none"; // Hide the overlay
@@ -306,7 +304,7 @@ async function showValidationOverlay(convertedPokemons) {
 }
 
 async function showConfirmationOverlay() {
-    loadingJingle.pause();
+    loadingJingle.pause()
     finishedJingle.play();
     const confirmationOverlay = document.createElement("div");
     confirmationOverlay.id = "confirmation-overlay";
@@ -500,7 +498,6 @@ async function fetchPokepasteContent(url) {
 
         const response = await fetch(url);
         if (!response.ok) {
-            loadingJingle.pause();
             throw new Error("Failed to fetch PokePaste content");
             
         }
@@ -592,6 +589,7 @@ async function convertShowDownList(paste) {
         }
     }
     catch (error) {
+        loadingJingle.pause();
         console.log('Error converting list: ' + error.message);
         throw new Error(`Error converting this list`);
     }
@@ -599,7 +597,7 @@ async function convertShowDownList(paste) {
 }
 
 async function addPokemons(convertedPokemons) {
-    
+    loadingJingle.play();
     showLoadingOverlay(); // Show loading overlay
     var startTime = new Date().getTime(); // Get the current time
 
@@ -680,9 +678,6 @@ async function addPokemons(convertedPokemons) {
     };
     console.log("Totally taken " + getDuration(startTime));
     hideLoadingOverlay(); // Hide loading overlay when the process is complete
-    loadingJingle.play();
-    loadingJingle.loop = true;
-
 }
 
 function validatePokemon(pokemon) {
@@ -718,6 +713,7 @@ async function addSinglePokemon(pokemon) {
         resetLoadingOverlayProgress("Adding " + pokemon.name + ' ...');
         return response.text();
     } catch (error) {
+        loadingJingle.pause();
         console.log("Error:", error.message);
     }
 }
@@ -755,6 +751,7 @@ async function setValue(pokemonId, field, value, fieldDisplay) {
             }
             updateLoadingOverlayProgress("Set " + fieldDisplay + " -> " + value);// Response data captured in the 'data' variable
         } catch (error) {
+            loadingJingle.pause();
             console.log("Error:", error.message);
         }
     }
@@ -793,6 +790,7 @@ async function selectValue(pokemonId, field, value, fieldDisplay, valueDisplay) 
             }
             updateLoadingOverlayProgress("Choose " + fieldDisplay + " -> " + valueDisplay);// Response data captured in the 'data' variable
         } catch (error) {
+            loadingJingle.pause();
             console.log("Error:", error.message);
         }
     }
@@ -831,6 +829,7 @@ async function setLanguage(language, value, fieldDisplay, valueDisplay) {
             }
             updateLoadingOverlayProgress("Choose " + fieldDisplay + " -> " + valueDisplay);// Response data captured in the 'data' variable
         } catch (error) {
+            loadingJingle.pause();
             console.log("Error:", error.message);
         }
     }
@@ -871,6 +870,7 @@ async function getRk9FieldMap(token, field) {
 
             sessionStorage.setItem(field, JSON.stringify(storageValue));
         } catch (error) {
+            loadingJingle.pause();
             console.log("Error:", error.message);
         }
     }
