@@ -325,11 +325,11 @@ async function showConfirmationOverlay() {
     container.appendChild(title);
 
     const confirmationMessage = document.createElement("p");
-    confirmationMessage.innerHTML = 'Your pokemons have been added.';
+    confirmationMessage.innerHTML = 'Your Pokemon have been added.';
     container.appendChild(confirmationMessage);
 
     const disclaimerMessage = document.createElement("p");
-    disclaimerMessage.innerHTML = 'Please check the stats of added pokemons after the page is refreshed.';
+    disclaimerMessage.innerHTML = 'Please check the stats of added Pokemon after the page is refreshed.';
     disclaimerMessage.style.color = 'red';
     disclaimerMessage.style.fontWeight = 'bold';
     disclaimerMessage.style.fontSize = '80%'; // This reduces the font size by 20%
@@ -366,7 +366,7 @@ async function showConfirmationOverlay() {
 async function showErrorOverlay(message) {
     const errorOverlay = document.createElement("div");
     errorOverlay.id = "error-overlay";
-    errorOverlay.style = overlayStyle; // Apply your desired styles
+    errorOverlay.style = overlayStyle; 
     errorOverlay.style.display = "flex";
     errorOverlay.style.flexDirection = "column";
 
