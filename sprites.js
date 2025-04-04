@@ -96,8 +96,8 @@ var spritesLink = {
     "999_001": "https://www.serebii.net/scarletviolet/pokemon/999-r.png",
     "1012_001": "https://www.serebii.net/scarletviolet/pokemon/1012-m.png",
     "1013_001": "https://www.serebii.net/scarletviolet/pokemon/1013-m.png",
-    "1017_001": "https://www.serebii.net/scarletviolet/pokemon/1017-m.png",
+    "1017_000": "https://www.serebii.net/scarletviolet/pokemon/1017-m.png",
+    "1017_001": "https://www.serebii.net/scarletviolet/pokemon/1017-cm.png",
     "1017_002": "https://www.serebii.net/scarletviolet/pokemon/1017-wm.png",
-    "1017_003": "https://www.serebii.net/scarletviolet/pokemon/1017-hm.png",
-    "1017_004": "https://www.serebii.net/scarletviolet/pokemon/1017-cm.png"
+    "1017_003": "https://www.serebii.net/scarletviolet/pokemon/1017-hm.png"
 }
