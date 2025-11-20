@@ -13,14 +13,8 @@
       "matches": ["https://rk9.gg/teamlist/index"],
       "js": ["content_script.js"],
       "run_at": "document_end"
-    },
-    {
-      "matches": ["https://*.pokemonshowdown.com/*"],
-      "js": ["content_main.js"],
-      "run_at": "document_end"
     }
   ],
-  "options_page": "options.html",
   "icons": {
     "48": "extreme_speed.png"
   },
