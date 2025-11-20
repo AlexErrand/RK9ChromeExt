@@ -796,46 +796,6 @@ async function selectValue(pokemonId, field, value, fieldDisplay, valueDisplay) 
     }
 }
 
-async function setLanguage(language, value, fieldDisplay, valueDisplay) {
-    if (value) {
-        // Define the URL and headers
-        const postUrl = "https://rk9.gg/teamlist/select?lang=EN";
-        const headers = {
-            "Cookie": cookies
-        };
-
-        const formData = new FormData();
-        formData.append("id", pokemonId + "-" + field);
-        formData.append("value", value);
-
-        // Define the POST request options
-        const requestOptions = {
-            method: 'POST',
-            headers: new Headers(headers),
-            body: formData,
-        };
-
-        // Make the POST request
-        try {
-            const response = await fetch(postUrl, requestOptions);
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-
-            const responseData = await response.json();
-            if (responseData.msg !== "ok") {
-                throw new Error("Response does not contain 'msg' or it's not 'ok'");
-            }
-            updateLoadingOverlayProgress("Choose " + fieldDisplay + " -> " + valueDisplay);// Response data captured in the 'data' variable
-        } catch (error) {
-            loadingJingle.pause();
-            console.log("Error:", error.message);
-        }
-    }
-
-}
-
 async function getRk9FieldMap(token, field) {
     // check session storage first
     var storageValue = null;
