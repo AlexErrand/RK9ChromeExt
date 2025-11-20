@@ -583,7 +583,7 @@ async function convertShowDownList(paste) {
             pokemon.moves = pokes[i].moves;
 
             pokemon.validations = validatePokemon(pokemon);
-            hasValidations = hasValidations ? hasValidations : (pokemon.validations.length > 0)
+            hasValidations = hasValidations || (pokemon.validations.length > 0);
 
             convertedPokemons.push(pokemon);
         }
@@ -601,81 +601,59 @@ async function addPokemons(convertedPokemons) {
     showLoadingOverlay(); // Show loading overlay
     var startTime = new Date().getTime(); // Get the current time
 
-    for (const pokemon of convertedPokemons) {
-        var startTime = new Date().getTime(); // Get the current time
+    // Fetch field maps once before processing Pokémon (still sequential, but only once)
+    // We need a token first, so add the first Pokémon to get it
+    if (convertedPokemons.length === 0) {
+        hideLoadingOverlay();
+        return;
+    }
+
+    var firstPokeToken = await addSinglePokemon(convertedPokemons[0]);
+    if (firstPokeToken == "") {
+        hideLoadingOverlay();
+        return;
+    }
+
+    // Fetch all field maps sequentially (only once, not per Pokémon)
+    if (pokemonMap == '')
+        pokemonMap = await getRk9FieldMap(firstPokeToken, "pokemon");
+    if (teraMap == '')
+        teraMap = await getRk9FieldMap(firstPokeToken, "teratype");
+    if (abilityMap == '')
+        abilityMap = await getRk9FieldMap(firstPokeToken, "ability");
+    if (itemMap == '')
+        itemMap = await getRk9FieldMap(firstPokeToken, "helditem");
+    if (moveMap == '')
+        moveMap = await getRk9FieldMap(firstPokeToken, "move");
+
+    // Process first Pokémon (already added, just need to set values)
+    var pokemon = convertedPokemons[0];
+    var pokemonStartTime = new Date().getTime();
+    
+    // Validate IDs exist in RK9 maps
+    var ids = validatePokemonIds(pokemon);
+    await setPokemonValues(firstPokeToken, pokemon, ids);
+
+    console.log('Pokemon "' + pokemon.name + '" submitted (' + getDuration(pokemonStartTime) + ')');
+
+    // Process remaining Pokémon
+    for (let i = 1; i < convertedPokemons.length; i++) {
+        pokemon = convertedPokemons[i];
+        pokemonStartTime = new Date().getTime();
 
         var pokeToken = await addSinglePokemon(pokemon);
         if (pokeToken == "") {
+            hideLoadingOverlay();
             return;
         }
 
-        if (pokemonMap == '')
-            pokemonMap = await getRk9FieldMap(pokeToken, "pokemon");
-        console.log(pokemonMap)
-        if (teraMap == '')
-            teraMap = await getRk9FieldMap(pokeToken, "teratype");
+        // Validate IDs exist in RK9 maps
+        ids = validatePokemonIds(pokemon);
+        await setPokemonValues(pokeToken, pokemon, ids);
 
-        if (abilityMap == '')
-            abilityMap = await getRk9FieldMap(pokeToken, "ability");
-        console.log(abilityMap)
-        if (itemMap == '')
-            itemMap = await getRk9FieldMap(pokeToken, "helditem");
-        console.log(itemMap)
-        if (moveMap == '')
-            moveMap = await getRk9FieldMap(pokeToken, "move");
-        console.log(moveMap)
-
-        // validate the id we use exists in RK9 list
-        // otherwise, we don't submit the request
-        var pokemonId = pokeTranslator[pokemon.name];
-        if (!pokemonId in pokemonMap)
-            pokemonId = '';
-
-        var abilityId = abilities[pokemon.ability];
-        if (!abilityId in abilityMap)
-            abilityId = '';
-
-        var itemId = heldItems[pokemon.item];
-        if (!itemId in itemMap)
-            itemId = '';
-
-        var teraType = pokemon.teraType;
-        if (!pokemon.teraType in teraMap)
-            teraType = ''
-
-        var move1Id = moves[pokemon.moves[0]];
-        if (!move1Id in moveMap)
-            move1Id = '';
-        var move2Id = moves[pokemon.moves[1]];
-        if (!move2Id in moveMap)
-            move2Id = '';
-        var move3Id = moves[pokemon.moves[2]];
-        if (!move3Id in moveMap)
-            move3Id = '';
-        var move4Id = moves[pokemon.moves[3]];
-        if (!move4Id in moveMap)
-            move4Id = '';
-
-        await setValue(pokeToken, 'name', pokemon.nickname, 'Nickname');
-        await setValue(pokeToken, 'level', pokemon.level, 'Level');
-        await setValue(pokeToken, 'hp', pokemon.stats.hp, 'HP');
-        await setValue(pokeToken, 'attack', pokemon.stats.atk, 'Attack');
-        await setValue(pokeToken, 'defense', pokemon.stats.def, 'Defense');
-        await setValue(pokeToken, 'spatk', pokemon.stats.spa, 'Sp. Atk');
-        await setValue(pokeToken, 'spdef', pokemon.stats.spd, 'Sp. Def');
-        await setValue(pokeToken, 'speed', pokemon.stats.spe, 'Speed');
-        await selectValue(pokeToken, 'pokemon', pokemonId, 'Pokemon', pokemon.name);
-        await selectValue(pokeToken, 'teratype', teraType, 'Tera Type', pokemon.teraType);
-        await selectValue(pokeToken, 'ability', abilityId, 'Ability', pokemon.ability);
-        await selectValue(pokeToken, 'helditem', itemId, 'Held Item', pokemon.item);
-        await selectValue(pokeToken, 'move1', move1Id, 'Move 1', pokemon.moves[0]);
-        await selectValue(pokeToken, 'move2', move2Id, 'Move 2', pokemon.moves[1]);
-        await selectValue(pokeToken, 'move3', move3Id, 'Move 3', pokemon.moves[2]);
-        await selectValue(pokeToken, 'move4', move4Id, 'Move 4', pokemon.moves[3]);
-
-        // Display the timer in the desired format
-        console.log('Pokemon "' + pokemon.name + '" submitted (' + getDuration(startTime) + ')');
-    };
+        console.log('Pokemon "' + pokemon.name + '" submitted (' + getDuration(pokemonStartTime) + ')');
+    }
+    
     console.log("Totally taken " + getDuration(startTime));
     hideLoadingOverlay(); // Hide loading overlay when the process is complete
 }
@@ -688,6 +666,69 @@ function validatePokemon(pokemon) {
     }
 
     return validations;
+}
+
+// Helper function to validate and get IDs for a Pokémon
+function validatePokemonIds(pokemon) {
+    var pokemonId = pokeTranslator[pokemon.name];
+    if (!(pokemonId in pokemonMap))
+        pokemonId = '';
+
+    var abilityId = abilities[pokemon.ability];
+    if (!(abilityId in abilityMap))
+        abilityId = '';
+
+    var itemId = heldItems[pokemon.item];
+    if (!(itemId in itemMap))
+        itemId = '';
+
+    var teraType = pokemon.teraType;
+    if (!(pokemon.teraType in teraMap))
+        teraType = ''
+
+    var move1Id = moves[pokemon.moves[0]];
+    if (!(move1Id in moveMap))
+        move1Id = '';
+    var move2Id = moves[pokemon.moves[1]];
+    if (!(move2Id in moveMap))
+        move2Id = '';
+    var move3Id = moves[pokemon.moves[2]];
+    if (!(move3Id in moveMap))
+        move3Id = '';
+    var move4Id = moves[pokemon.moves[3]];
+    if (!(move4Id in moveMap))
+        move4Id = '';
+
+    return {
+        pokemonId: pokemonId,
+        abilityId: abilityId,
+        itemId: itemId,
+        teraType: teraType,
+        move1Id: move1Id,
+        move2Id: move2Id,
+        move3Id: move3Id,
+        move4Id: move4Id
+    };
+}
+
+// Helper function to set all values for a Pokémon
+async function setPokemonValues(pokeToken, pokemon, ids) {
+    await setValue(pokeToken, 'name', pokemon.nickname, 'Nickname');
+    await setValue(pokeToken, 'level', pokemon.level, 'Level');
+    await setValue(pokeToken, 'hp', pokemon.stats.hp, 'HP');
+    await setValue(pokeToken, 'attack', pokemon.stats.atk, 'Attack');
+    await setValue(pokeToken, 'defense', pokemon.stats.def, 'Defense');
+    await setValue(pokeToken, 'spatk', pokemon.stats.spa, 'Sp. Atk');
+    await setValue(pokeToken, 'spdef', pokemon.stats.spd, 'Sp. Def');
+    await setValue(pokeToken, 'speed', pokemon.stats.spe, 'Speed');
+    await selectValue(pokeToken, 'pokemon', ids.pokemonId, 'Pokemon', pokemon.name);
+    await selectValue(pokeToken, 'teratype', ids.teraType, 'Tera Type', pokemon.teraType);
+    await selectValue(pokeToken, 'ability', ids.abilityId, 'Ability', pokemon.ability);
+    await selectValue(pokeToken, 'helditem', ids.itemId, 'Held Item', pokemon.item);
+    await selectValue(pokeToken, 'move1', ids.move1Id, 'Move 1', pokemon.moves[0]);
+    await selectValue(pokeToken, 'move2', ids.move2Id, 'Move 2', pokemon.moves[1]);
+    await selectValue(pokeToken, 'move3', ids.move3Id, 'Move 3', pokemon.moves[2]);
+    await selectValue(pokeToken, 'move4', ids.move4Id, 'Move 4', pokemon.moves[3]);
 }
 
 async function addSinglePokemon(pokemon) {
@@ -715,6 +756,7 @@ async function addSinglePokemon(pokemon) {
     } catch (error) {
         loadingJingle.pause();
         console.log("Error:", error.message);
+        return "";
     }
 }
 
@@ -803,6 +845,7 @@ async function getRk9FieldMap(token, field) {
         storageValue = JSON.parse(sessionStorage.getItem(field));
     }
     else {
+        console.log("Cookies used for getRk9FieldMap:", cookies);
         const getUrl = "https://rk9.gg/teamlist/select?lang=EN&id=" + token + "-" + field;
         const headers = {
             "Cookie": cookies
@@ -814,19 +857,16 @@ async function getRk9FieldMap(token, field) {
             headers: new Headers(headers),
         };
 
-        // Make the POST request
+        // Make the GET request
         try {
             const response = await fetch(getUrl, requestOptions);
-            console.log(response)
-
 
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
 
             const responseData = await response.json();
-            console.log(responseData)
-            storageValue = responseData
+            storageValue = responseData;
 
             sessionStorage.setItem(field, JSON.stringify(storageValue));
         } catch (error) {
