@@ -52,22 +52,7 @@ var Pokemon = class {
     }
 }
 
-// Add this style to your script
-const overlayStyle = `
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: rgba(0, 0, 0, 0.7);
-display: flex;
-justify-content: center;
-align-items: center;
-z-index: 9999;`;
-
-const loadingImageStyle = `
-width: 498px; /* Adjust the size as needed */
-height: 305px; /* Adjust the size as needed */`;
+// CSS classes are now defined in extension-styles.css
 
 export function main() {
     addDisclaimer();
@@ -76,8 +61,7 @@ export function main() {
     // Create a new button element
     var showDownButton = document.createElement("button");
     showDownButton.innerText = "Load Showdown List";
-    showDownButton.className = "btn btn-sm btn-primary mx-2"; // Add the desired classes
-    showDownButton.style.backgroundColor = "lightblue";
+    showDownButton.className = "btn btn-sm btn-primary mx-2 rk9-ext-main-button";
 
     // Get a reference to the existing buttons
     var existingAddButton = document.getElementById("add");
@@ -87,25 +71,19 @@ export function main() {
     showDownButton.addEventListener("click", async function () {
         // Disable the "New Button"
         showDownButton.disabled = true;
-        // Change the background color to gray to indicate it's disabled
-        showDownButton.style.backgroundColor = "gray";
 
         var showDownContainer = document.createElement("div");
-        showDownContainer.style.marginTop = "1em"; // Adjust the margin as needed
-        showDownContainer.style.display = "flex"; // Set the container to use flex layout
-        showDownContainer.style.alignItems = "flex-end"; // Align items vertically in the center
+        showDownContainer.className = "rk9-ext-showdown-container";
 
         // Create a new text box
         var showDownListBox = document.createElement("textarea");
-        showDownListBox.rows = 18; // Set the number of rows
-        showDownListBox.cols = 50; // Set the number of columns (width)
-        showDownListBox.style.borderRadius = "5px";
-        showDownListBox.style.overflowY = "scroll"; // Add a scrollbar to the text area
+        showDownListBox.rows = 18;
+        showDownListBox.cols = 50;
+        showDownListBox.className = "rk9-ext-textarea";
 
         function updateButtonState() {
             const inputValue = showDownListBox.value.trim();
             convertButton.disabled = inputValue === "";
-            convertButton.style.backgroundColor = inputValue !== "" ? "lightblue" : "gray";
         }
 
         // Add input event listener to text area
@@ -116,25 +94,20 @@ export function main() {
 
         // Create a container div for the buttons
         var buttonContainer = document.createElement("div");
-        buttonContainer.style.display = "flex"; // Set the container to use flex layout
-        buttonContainer.style.flexDirection = "column";
-        buttonContainer.style.marginLeft = "0.5em"; // Adjust the margin as needed
+        buttonContainer.className = "rk9-ext-button-group";
 
         document.body.appendChild(buttonContainer);
 
         var convertButton = document.createElement("button");
         convertButton.innerText = "Convert List";
-        convertButton.className = "btn btn-sm btn-primary mx-2";
+        convertButton.className = " rk9-ext-button primary";
 
         // Append the button to the button container
         buttonContainer.appendChild(convertButton);
 
 
         var select = document.createElement("select");
-        select.style.display = "flex"; // Set the container to use flex layout
-        select.style.flexDirection = "column";
-        select.style.marginLeft = "0.5em"; // Adjust the margin as needed
-        select.style.marginBottom = "0.5em";
+        select.className = "rk9-ext-select";
 
         // Define an array with the language options
         var languages = ["EN", "DE", "ES", "FR", "IT", "JP", "KO", "SC", "TC"];
@@ -181,14 +154,10 @@ export function main() {
 
         var cancelButton = document.createElement("button");
         cancelButton.innerText = "Cancel";
-        cancelButton.className = "btn btn-sm btn-primary mx-2"; // Add the desired classes
-        cancelButton.style.backgroundColor = "lightblue";
-        cancelButton.style.marginTop = "0.5em"; // Adjust the margin as needed
+        cancelButton.className = "btn btn-sm btn-primary mx-2 rk9-ext-button secondary";
         cancelButton.addEventListener("click", function () {
-             
             showDownContainer.parentNode.removeChild(showDownContainer);
             showDownButton.disabled = false; // Re-enable the "New Button"
-            showDownButton.style.backgroundColor = "lightblue"; // Restore the background color
         });
 
         // Append the text box to the container
@@ -213,38 +182,34 @@ async function showValidationOverlay(convertedPokemons) {
     loadingJingle.pause();
     const validationOverlay = document.createElement("div");
     validationOverlay.id = "validation-overlay";
-    validationOverlay.style = overlayStyle; // Apply your desired styles
-    validationOverlay.style.display = "flex";
-    validationOverlay.style.flexDirection = "column";
+    validationOverlay.className = "rk9-ext-overlay";
 
     const container = document.createElement("div");
-    container.style.position = "fixed";
-    container.style.left = "50%";
-    container.style.top = "50%";
-    container.style.transform = "translate(-50%, -50%)";
-    container.className = "alert alert-warning";
+    container.className = "rk9-ext-overlay-container alert alert-warning";
 
     const title = document.createElement("p");
     title.textContent = "Warning";
-    title.style.fontWeight = 'bold';
+    title.className = "rk9-ext-overlay-title warning";
     container.appendChild(title);
 
     const header = document.createElement("p");
     header.textContent = "Some of your Pokemon may be the incorrect level. Please check the following:"
+    header.className = "rk9-ext-overlay-content";
     container.appendChild(header);
 
     const validationErrorsList = document.createElement("ul");
+    validationErrorsList.className = "rk9-ext-overlay-content";
 
     convertedPokemons.forEach((pokemon) => {
         if (pokemon.validations.length > 0) {
             const pokeItem = document.createElement("li");
             pokeItem.textContent = pokemon.name + ':';
-            pokeItem.style.marginTop = '10px'
+            pokeItem.className = "rk9-ext-validation-item";
             const validationList = document.createElement("ul");
+            validationList.className = "rk9-ext-validation-sublist";
             pokemon.validations.forEach((validation) => {
                 const valItem = document.createElement("li");
-                valItem.textContent = '- ' + validation;
-                valItem.style.textIndent = '20px';
+                valItem.textContent = validation;
                 validationList.appendChild(valItem)
             });
             pokeItem.appendChild(validationList);
@@ -257,34 +222,29 @@ async function showValidationOverlay(convertedPokemons) {
 
     // Create a container div for the buttons
     var buttonContainer = document.createElement("div");
-    buttonContainer.style.display = "flex"; // Set the container to use flex layout
-    buttonContainer.style.justifyContent = 'center';
-    buttonContainer.style.marginTop = "2em"; // Adjust the margin as needed
+    buttonContainer.className = "rk9-ext-button-container";
     container.appendChild(buttonContainer);
 
     // Create "Continue" and "Cancel" buttons
     const continueButton = document.createElement("button");
     continueButton.textContent = "Continue";
-    continueButton.className = "btn btn-sm btn-primary mx-2";
-    continueButton.style.backgroundColor = "lightblue";
+    continueButton.className = "rk9-ext-button primary";
     continueButton.addEventListener("click", function () {
         // Handle the "Continue" button click
         loadingJingle.play();
         loadingJingle.loop = true;
-        validationOverlay.style.display = "none"; // Hide the overlay
+        validationOverlay.classList.add("rk9-ext-hidden");
         allowSubmission = true;
     });
     buttonContainer.appendChild(continueButton);
 
     const cancelButton = document.createElement("button");
     cancelButton.textContent = "Cancel";
-    cancelButton.className = "btn btn-sm btn-primary mx-2";
-    cancelButton.style.marginLeft = "0.5em"; // Adjust the margin as needed
-    cancelButton.style.backgroundColor = "lightblue";
+    cancelButton.className = "rk9-ext-button secondary";
     cancelButton.addEventListener("click", function () {
         loadingJingle.currentTime = 0;
         // Handle the "Cancel" button click
-        validationOverlay.style.display = "none"; // Hide the overlay
+        validationOverlay.classList.add("rk9-ext-hidden");
         // Handle the cancellation as needed
     });
     buttonContainer.appendChild(cancelButton);
@@ -292,9 +252,6 @@ async function showValidationOverlay(convertedPokemons) {
     // Append the overlay to the document body
     validationOverlay.appendChild(container);
     document.body.appendChild(validationOverlay);
-
-    // Show the overlay
-    validationOverlay.style.display = "block";
 
     // Wait for the user to click either button
     await Promise.race([
@@ -308,45 +265,35 @@ async function showConfirmationOverlay() {
     finishedJingle.play();
     const confirmationOverlay = document.createElement("div");
     confirmationOverlay.id = "confirmation-overlay";
-    confirmationOverlay.style = overlayStyle; // Apply your desired styles
-    confirmationOverlay.style.display = "flex";
-    confirmationOverlay.style.flexDirection = "column";
+    confirmationOverlay.className = "rk9-ext-overlay";
 
     const container = document.createElement("div");
-    container.style.position = "fixed";
-    container.style.left = "50%";
-    container.style.top = "50%";
-    container.style.transform = "translate(-50%, -50%)";
-    container.className = "alert alert-warning";
+    container.className = "rk9-ext-overlay-container alert alert-warning";
 
     const title = document.createElement("p");
     title.textContent = "Congratulations";
-    title.style.fontWeight = 'bold';
+    title.className = "rk9-ext-overlay-title success";
     container.appendChild(title);
 
     const confirmationMessage = document.createElement("p");
     confirmationMessage.innerHTML = 'Your Pokemon have been added.';
+    confirmationMessage.className = "rk9-ext-overlay-content";
     container.appendChild(confirmationMessage);
 
     const disclaimerMessage = document.createElement("p");
     disclaimerMessage.innerHTML = 'Please check the stats of added Pokemon after the page is refreshed.';
-    disclaimerMessage.style.color = 'red';
-    disclaimerMessage.style.fontWeight = 'bold';
-    disclaimerMessage.style.fontSize = '80%'; // This reduces the font size by 20%
+    disclaimerMessage.className = "rk9-ext-disclaimer";
     container.appendChild(disclaimerMessage);
 
     // Create a container div for the buttons
     var buttonContainer = document.createElement("div");
-    buttonContainer.style.display = "flex"; // Set the container to use flex layout
-    buttonContainer.style.justifyContent = 'center';
-    buttonContainer.style.marginTop = "2em"; // Adjust the margin as needed
+    buttonContainer.className = "rk9-ext-button-container";
     container.appendChild(buttonContainer);
 
     // Create "Ok" buttons
     const okButton = document.createElement("button");
     okButton.textContent = "Ok";
-    okButton.className = "btn btn-sm btn-primary mx-2";
-    okButton.style.backgroundColor = "lightblue";
+    okButton.className = "rk9-ext-button primary";
     okButton.addEventListener("click", function () {
         location.reload();
     });
@@ -356,9 +303,6 @@ async function showConfirmationOverlay() {
     confirmationOverlay.appendChild(container);
     document.body.appendChild(confirmationOverlay);
 
-    // Show the overlay
-    confirmationOverlay.style.display = "block";
-
     // Wait for the user to click either button
     await Promise.race([createPromiseForButtonClick(okButton)]);
 }
@@ -366,53 +310,39 @@ async function showConfirmationOverlay() {
 async function showErrorOverlay(message) {
     const errorOverlay = document.createElement("div");
     errorOverlay.id = "error-overlay";
-    errorOverlay.style = overlayStyle; 
-    errorOverlay.style.display = "flex";
-    errorOverlay.style.flexDirection = "column";
+    errorOverlay.className = "rk9-ext-overlay";
 
     const container = document.createElement("div");
-    container.style.position = "fixed";
-    container.style.left = "50%";
-    container.style.top = "50%";
-    container.style.transform = "translate(-50%, -50%)";
-    container.className = "alert alert-warning";
+    container.className = "rk9-ext-overlay-container alert alert-warning";
 
     const title = document.createElement("p");
     title.textContent = "Error";
-    title.style.fontWeight = 'bold';
+    title.className = "rk9-ext-overlay-title error";
     container.appendChild(title);
 
     const errorMessage = document.createElement("p");
     errorMessage.innerHTML = message;
+    errorMessage.className = "rk9-ext-overlay-content";
     container.appendChild(errorMessage);
 
     // Create a container div for the buttons
     var buttonContainer = document.createElement("div");
-    buttonContainer.style.display = "flex"; // Set the container to use flex layout
-    buttonContainer.style.justifyContent = 'center';
-    buttonContainer.style.marginTop = "2em"; // Adjust the margin as needed
+    buttonContainer.className = "rk9-ext-button-container";
     container.appendChild(buttonContainer);
 
     // Create "Ok" buttons
     const okButton = document.createElement("button");
     okButton.textContent = "Ok";
-    okButton.className = "btn btn-sm btn-primary mx-2";
-    okButton.style.backgroundColor = "lightblue";
-    okButton.style.display = "flex"; // Set the container to use flex layout
-    okButton.style.justifyContent = 'center';
-    okButton.style.marginTop = "2em"; // Adjust the margin as needed
+    okButton.className = "rk9-ext-button primary";
     okButton.addEventListener("click", function () {
         // Handle the "Continue" button click
-        errorOverlay.style.display = "none"; // Hide the overlay
+        errorOverlay.classList.add("rk9-ext-hidden");
     });
     buttonContainer.appendChild(okButton);
 
     // Append the overlay to the document body
     errorOverlay.appendChild(container);
     document.body.appendChild(errorOverlay);
-
-    // Show the overlay
-    errorOverlay.style.display = "block";
 
     // Wait for the user to click either button
     await Promise.race([createPromiseForButtonClick(okButton)]);
@@ -421,19 +351,17 @@ async function showErrorOverlay(message) {
 function showLoadingOverlay() {
     const overlay = document.createElement("div");
     overlay.id = "loading-overlay";
-    overlay.style = overlayStyle;
+    overlay.className = "rk9-ext-loading-overlay";
 
     const container = document.createElement("div");
-    container.style.display = "flex";
-    container.style.flexDirection = "column";
+    container.className = "rk9-ext-loading-container";
 
     const loadingImage = document.createElement("img");
-    loadingImage.src = "https://media.tenor.com/8vuqpD3Ir-IAAAAC/catching-pokemon.gif"; // Replace with the URL of your loading image
-    loadingImage.style = loadingImageStyle;
+    loadingImage.src = "https://media.tenor.com/8vuqpD3Ir-IAAAAC/catching-pokemon.gif";
+    loadingImage.className = "rk9-ext-loading-image";
 
     const messageElement = document.createElement("p");
-    messageElement.style.color = "white";
-    messageElement.style.marginTop = "0.5em"; // Adjust the margin as needed
+    messageElement.className = "rk9-ext-loading-message";
 
     container.appendChild(loadingImage);
     container.appendChild(messageElement);
@@ -845,7 +773,6 @@ async function getRk9FieldMap(token, field) {
         storageValue = JSON.parse(sessionStorage.getItem(field));
     }
     else {
-        console.log("Cookies used for getRk9FieldMap:", cookies);
         const getUrl = "https://rk9.gg/teamlist/select?lang=EN&id=" + token + "-" + field;
         const headers = {
             "Cookie": cookies
@@ -899,9 +826,8 @@ function addDisclaimer() {
 
         // Add content to the new paragraph
         newParagraph.innerHTML = 'Note: Extreme Speed - VGC Companion is not affiliated with RK9Labs, Nintendo, Game Freak, Pokémon Showdown or The Pokémon Company International. <br>Please always make sure that the team submitted here matches the team in your console, and that your Pokémon are appropriately leveled prior to importing your team for accurate results. <br>This extension does not submit your team for you, please make sure to do that before the appropriate deadline.';
-        newParagraph.style.color = 'red';
-        newParagraph.style.fontSize = '30px';
-        newParagraph.style.fontWeight = 'bold';
+        newParagraph.className = "rk9-ext-disclaimer";
+        newParagraph.style.fontSize = '1.25rem'; // Keep larger size for disclaimer
 
         // Append the new paragraph to the warning div
         warningDiv.appendChild(newParagraph);
@@ -946,8 +872,11 @@ function updateSprites() {
 
         // Reset the margin height for the img
         imgElement.src = newImgLink;
-        imgElement.style.margin = "12"; // Set margin to 12px
-        imgElement.style.height = "128px"; // Set height to 128px
+        imgElement.className = "rk9-ext-pokemon-sprite";
+        // Clear any inline styles that might override our CSS
+        imgElement.style.height = "";
+        imgElement.style.width = "";
+        imgElement.style.maxWidth = "";
     });
 }
 
