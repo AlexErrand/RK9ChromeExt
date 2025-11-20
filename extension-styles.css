@@ -14,6 +14,7 @@
     z-index: 9999;
     backdrop-filter: blur(4px);
     animation: fadeIn 0.3s ease-in;
+    transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
 }
 
 @keyframes fadeIn {
@@ -37,6 +38,7 @@
     overflow-y: auto;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     animation: slideUp 0.3s ease-out;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
 }
 
 @keyframes slideUp {
@@ -106,9 +108,26 @@
 /* Disclaimer Message */
 .rk9-ext-disclaimer {
     color: #dc2626;
+    text-align: center;
     font-size: 0.875rem;
     font-weight: bold;
     margin-top: 1rem;
+    animation: flashAttention 2s ease-in-out 3;
+}
+
+@keyframes flashAttention {
+    0%, 100% {
+        opacity: 1;
+        background-color: transparent;
+    }
+    25%, 75% {
+        opacity: 0.3;
+        background-color: rgba(220, 38, 38, 0.2);
+    }
+    50% {
+        opacity: 1;
+        background-color: rgba(220, 38, 38, 0.4);
+    }
 }
 
 /* Button Container */
@@ -263,10 +282,13 @@
 }
 
 .rk9-ext-loading-image {
-    width: 498px;
-    height: 305px;
+    max-width: 498px;
+    max-height: 305px;
+    width: auto;
+    height: auto;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    object-fit: contain;
 }
 
 .rk9-ext-loading-message {
@@ -318,7 +340,14 @@
 
 /* Utility Classes */
 .rk9-ext-hidden {
-    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+.rk9-ext-hidden .rk9-ext-overlay-container {
+    transform: translateY(-20px) !important;
+    opacity: 0 !important;
 }
 
 .rk9-ext-text-center {

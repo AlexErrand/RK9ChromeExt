@@ -234,6 +234,9 @@ async function showValidationOverlay(convertedPokemons) {
         loadingJingle.play();
         loadingJingle.loop = true;
         validationOverlay.classList.add("rk9-ext-hidden");
+        setTimeout(function() {
+            validationOverlay.style.display = "none";
+        }, 300); // Wait for transition to complete
         allowSubmission = true;
     });
     buttonContainer.appendChild(continueButton);
@@ -245,6 +248,9 @@ async function showValidationOverlay(convertedPokemons) {
         loadingJingle.currentTime = 0;
         // Handle the "Cancel" button click
         validationOverlay.classList.add("rk9-ext-hidden");
+        setTimeout(function() {
+            validationOverlay.style.display = "none";
+        }, 300); // Wait for transition to complete
         // Handle the cancellation as needed
     });
     buttonContainer.appendChild(cancelButton);
@@ -348,7 +354,25 @@ async function showErrorOverlay(message) {
     await Promise.race([createPromiseForButtonClick(okButton)]);
 }
 
-function showLoadingOverlay() {
+// Helper function to get Pokemon sprite URL
+function getPokemonSpriteUrl(pokemonName) {
+    var pokemonId = pokeTranslator[pokemonName];
+    if (!pokemonId) {
+        // Fallback to Pokeball GIF if Pokemon not found
+        return "https://media.tenor.com/8vuqpD3Ir-IAAAAC/catching-pokemon.gif";
+    }
+    
+    // Check if we have a custom sprite link
+    if (spritesLink[pokemonId]) {
+        return spritesLink[pokemonId];
+    }
+    
+    // Extract the number part (before the underscore)
+    var dataNumber = pokemonId.split("_")[0];
+    return "https://www.serebii.net/scarletviolet/pokemon/new/" + dataNumber + ".png";
+}
+
+function showLoadingOverlay(pokemon) {
     const overlay = document.createElement("div");
     overlay.id = "loading-overlay";
     overlay.className = "rk9-ext-loading-overlay";
@@ -357,8 +381,14 @@ function showLoadingOverlay() {
     container.className = "rk9-ext-loading-container";
 
     const loadingImage = document.createElement("img");
-    loadingImage.src = "https://media.tenor.com/8vuqpD3Ir-IAAAAC/catching-pokemon.gif";
+    // Use Pokemon sprite if provided, otherwise use default GIF
+    if (pokemon && pokemon.name) {
+        loadingImage.src = getPokemonSpriteUrl(pokemon.name);
+    } else {
+        loadingImage.src = "https://media.tenor.com/8vuqpD3Ir-IAAAAC/catching-pokemon.gif";
+    }
     loadingImage.className = "rk9-ext-loading-image";
+    loadingImage.id = "loading-pokemon-sprite";
 
     const messageElement = document.createElement("p");
     messageElement.className = "rk9-ext-loading-message";
@@ -368,6 +398,13 @@ function showLoadingOverlay() {
 
     overlay.appendChild(container);
     document.body.appendChild(overlay);
+}
+
+function updateLoadingPokemonSprite(pokemon) {
+    var loadingImage = document.getElementById("loading-pokemon-sprite");
+    if (loadingImage && pokemon && pokemon.name) {
+        loadingImage.src = getPokemonSpriteUrl(pokemon.name);
+    }
 }
 
 function resetLoadingOverlayProgress(message) {
@@ -526,7 +563,8 @@ async function convertShowDownList(paste) {
 
 async function addPokemons(convertedPokemons) {
     loadingJingle.play();
-    showLoadingOverlay(); // Show loading overlay
+    // Show loading overlay with first Pokemon sprite (or default GIF if no Pokemon)
+    showLoadingOverlay(convertedPokemons.length > 0 ? convertedPokemons[0] : null);
     var startTime = new Date().getTime(); // Get the current time
 
     // Fetch field maps once before processing Pokémon (still sequential, but only once)
@@ -558,6 +596,9 @@ async function addPokemons(convertedPokemons) {
     var pokemon = convertedPokemons[0];
     var pokemonStartTime = new Date().getTime();
     
+    // Update loading sprite to show current Pokemon
+    updateLoadingPokemonSprite(pokemon);
+    
     // Validate IDs exist in RK9 maps
     var ids = validatePokemonIds(pokemon);
     await setPokemonValues(firstPokeToken, pokemon, ids);
@@ -568,6 +609,9 @@ async function addPokemons(convertedPokemons) {
     for (let i = 1; i < convertedPokemons.length; i++) {
         pokemon = convertedPokemons[i];
         pokemonStartTime = new Date().getTime();
+        
+        // Update loading sprite to show current Pokemon
+        updateLoadingPokemonSprite(pokemon);
 
         var pokeToken = await addSinglePokemon(pokemon);
         if (pokeToken == "") {
@@ -827,7 +871,7 @@ function addDisclaimer() {
         // Add content to the new paragraph
         newParagraph.innerHTML = 'Note: Extreme Speed - VGC Companion is not affiliated with RK9Labs, Nintendo, Game Freak, Pokémon Showdown or The Pokémon Company International. <br>Please always make sure that the team submitted here matches the team in your console, and that your Pokémon are appropriately leveled prior to importing your team for accurate results. <br>This extension does not submit your team for you, please make sure to do that before the appropriate deadline.';
         newParagraph.className = "rk9-ext-disclaimer";
-        newParagraph.style.fontSize = '1.25rem'; // Keep larger size for disclaimer
+        newParagraph.style.fontSize = '3rem'; // Keep larger size for disclaimer
 
         // Append the new paragraph to the warning div
         warningDiv.appendChild(newParagraph);
