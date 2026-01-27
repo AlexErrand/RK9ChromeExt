@@ -1,0 +1,364 @@
+/* Extension UI Styles */
+
+/* Overlay Base Styles */
+.rk9-ext-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease-in;
+    transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Overlay Container */
+.rk9-ext-overlay-container {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease-out;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Overlay Title */
+.rk9-ext-overlay-title {
+    font-weight: bold;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.rk9-ext-overlay-title.warning {
+    color: #f59e0b;
+}
+
+.rk9-ext-overlay-title.success {
+    color: #10b981;
+}
+
+.rk9-ext-overlay-title.error {
+    color: #ef4444;
+}
+
+/* Overlay Content */
+.rk9-ext-overlay-content {
+    margin-bottom: 1.5rem;
+    color: #555;
+    line-height: 1.6;
+}
+
+.rk9-ext-overlay-content ul {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.rk9-ext-overlay-content li {
+    margin: 0.5rem 0;
+}
+
+.rk9-ext-validation-item {
+    margin-top: 0.75rem;
+    font-weight: 500;
+}
+
+.rk9-ext-validation-sublist {
+    margin-top: 0.5rem;
+    padding-left: 1.5rem;
+    list-style-type: disc;
+}
+
+.rk9-ext-validation-sublist li {
+    text-indent: 0;
+    margin: 0.25rem 0;
+    color: #666;
+}
+
+/* Disclaimer Message */
+.rk9-ext-disclaimer {
+    color: #dc2626;
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: bold;
+    margin-top: 1rem;
+    animation: flashAttention 2s ease-in-out 3;
+}
+
+@keyframes flashAttention {
+    0%, 100% {
+        opacity: 1;
+        background-color: transparent;
+    }
+    25%, 75% {
+        opacity: 0.3;
+        background-color: rgba(220, 38, 38, 0.2);
+    }
+    50% {
+        opacity: 1;
+        background-color: rgba(220, 38, 38, 0.4);
+    }
+}
+
+/* Button Container */
+.rk9-ext-button-container {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+/* Extension Buttons */
+.rk9-ext-button {
+    padding: 0.625rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #60a5fa;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.rk9-ext-button:hover:not(:disabled) {
+    background-color: #3b82f6;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.rk9-ext-button:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.rk9-ext-button:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.rk9-ext-button.primary {
+    background-color: #60a5fa;
+}
+
+.rk9-ext-button.primary:hover:not(:disabled) {
+    background-color: #3b82f6;
+}
+
+.rk9-ext-button.secondary {
+    background-color: #6b7280;
+}
+
+.rk9-ext-button.secondary:hover:not(:disabled) {
+    background-color: #4b5563;
+}
+
+/* Main Extension Button - Override Bootstrap styles to match other buttons */
+.rk9-ext-main-button {
+    background-color: #60a5fa !important;
+    border-color: #60a5fa !important;
+    padding: 0.375rem 0.75rem !important;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    border-radius: 0.25rem !important;
+}
+
+.rk9-ext-main-button:hover:not(:disabled) {
+    background-color: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+}
+
+.rk9-ext-main-button:disabled {
+    background-color: #9ca3af !important;
+    border-color: #9ca3af !important;
+    cursor: not-allowed;
+}
+
+
+/* Showdown Container */
+.rk9-ext-showdown-container {
+    margin-top: 1em;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Textarea */
+.rk9-ext-textarea {
+    border-radius: 6px;
+    border: 2px solid #e5e7eb;
+    padding: 0.75rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+    min-width: 400px;
+}
+
+.rk9-ext-textarea:focus {
+    outline: none;
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+/* Button Group */
+.rk9-ext-button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Select Dropdown */
+.rk9-ext-select {
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 2px solid #e5e7eb;
+    background-color: white;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.rk9-ext-select:focus {
+    outline: none;
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+/* Loading Overlay */
+.rk9-ext-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(4px);
+}
+
+.rk9-ext-loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.rk9-ext-loading-image {
+    max-width: 498px;
+    max-height: 305px;
+    width: auto;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    object-fit: contain;
+}
+
+.rk9-ext-loading-message {
+    color: white;
+    font-size: 1rem;
+    text-align: center;
+    margin-top: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Pokemon Sprite Styles */
+.rk9-ext-pokemon-sprite {
+    float: left;
+    margin: 12px;
+    height: 128px;
+    width: auto;
+    max-width: none;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    transition: transform 0.2s ease;
+}
+
+.rk9-ext-pokemon-sprite:hover {
+    transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .rk9-ext-overlay-container {
+        width: 95%;
+        padding: 1.5rem;
+    }
+
+    .rk9-ext-showdown-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .rk9-ext-textarea {
+        min-width: 100%;
+    }
+
+    .rk9-ext-loading-image {
+        width: 100%;
+        max-width: 498px;
+        height: auto;
+    }
+}
+
+/* Utility Classes */
+.rk9-ext-hidden {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+.rk9-ext-hidden .rk9-ext-overlay-container {
+    transform: translateY(-20px) !important;
+    opacity: 0 !important;
+}
+
+.rk9-ext-text-center {
+    text-align: center;
+}
+
+.rk9-ext-mt-1 {
+    margin-top: 0.5rem;
+}
+
+.rk9-ext-mt-2 {
+    margin-top: 1rem;
+}
+

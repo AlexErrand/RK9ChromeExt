@@ -12,6 +12,7 @@
     {
       "matches": ["https://rk9.gg/teamlist/index"],
       "js": ["content_script.js"],
+      "css": ["extension-styles.css"],
       "run_at": "document_end"
     }
   ],

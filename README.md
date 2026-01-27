@@ -10,12 +10,10 @@ is fully responsible for their submission.
 Credit to @Yugib0y on Twitter for the logo!
 
 Patch Notes:
-- Audio queues have been added for the sending of team info to RK9 and when it is complete
+- Code cleanup to make CSS easier to read and more organized
+- Reduced API calls for less laggy experience
+- UI now matches RK9 website and new visual/audio effects 
 
-Bug fix:
-- Fixed an error where Vivillon would not be submittable
-- Fixed a bug where Calyrex would not upload correctly, sprites now show distinct form as well as Urshifu
-- Code cleanup
 
 # Installation Instructions
 
