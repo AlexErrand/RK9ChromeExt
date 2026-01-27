@@ -871,7 +871,7 @@ function addDisclaimer() {
         // Add content to the new paragraph
         newParagraph.innerHTML = 'Note: Extreme Speed - VGC Companion is not affiliated with RK9Labs, Nintendo, Game Freak, Pokémon Showdown or The Pokémon Company International. <br>Please always make sure that the team submitted here matches the team in your console, and that your Pokémon are appropriately leveled prior to importing your team for accurate results. <br>This extension does not submit your team for you, please make sure to do that before the appropriate deadline.';
         newParagraph.className = "rk9-ext-disclaimer";
-        newParagraph.style.fontSize = '3rem'; // Keep larger size for disclaimer
+        newParagraph.style.fontSize = '1.4rem'; // Keep larger size for disclaimer
 
         // Append the new paragraph to the warning div
         warningDiv.appendChild(newParagraph);
