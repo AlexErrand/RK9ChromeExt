@@ -2,7 +2,7 @@ export function Pokedex() {
     return pokedex;
 }
 
-var pokedex = {
+const pokedex = {
     "Bulbasaur": {
         "hp": 45,
         "atk": 49,

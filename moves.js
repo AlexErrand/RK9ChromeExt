@@ -2,7 +2,7 @@ export function Moves() {
     return moves;
 }
 
-var moves = {
+const moves = {
     "Absorb": "71",
     "Accelerock": "709",
     "Acid": "51",

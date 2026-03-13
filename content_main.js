@@ -654,7 +654,7 @@ async function addPokemons(convertedPokemons) {
         console.log('Pokemon "' + pokemon.name + '" submitted (' + getDuration(pokemonStartTime) + ')');
     }
     
-    console.log("Totally taken " + getDuration(startTime));
+    console.log("Total time taken for submission: " + getDuration(startTime));
     hideLoadingOverlay(); // Hide loading overlay when the process is complete
 }
 
