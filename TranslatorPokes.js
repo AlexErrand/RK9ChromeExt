@@ -2,7 +2,7 @@ export function PokeTranslator() {
     return pokeTranslator;
 }
 
-var pokeTranslator = {
+const pokeTranslator = {
     "Bulbasaur": "001_000",
     "Ivysaur": "002_000",
     "Venusaur": "003_000",

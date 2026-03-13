@@ -2,7 +2,7 @@ export function Natures() {
     return natures;
 }
 
-var natures = {
+const natures = {
     "Hardy": {
         "hp": 1,
         "atk": 1,
