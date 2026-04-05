@@ -66,33 +66,26 @@ export function main() {
     // Get a reference to the existing buttons
     var existingAddButton = document.getElementById("add");
     var existingSubmitButton = document.getElementById("submit");
+    var pokemonCount = document.getElementById("pokemoncount");
 
-    function updateSelectedMonCount() {
-        const count = document.querySelectorAll(".team.btn-success").length;
-        console.log("number of selected pokemon: " + count);
+    function getPokemonCount() {
+        return Number(pokemonCount.textContent);
     }
 
-    // initial count
-    window.addEventListener("load", () => {
-        updateSelectedMonCount();
-    });
+    function syncSubmitButton() {
+        var count = getPokemonCount();
+        console.log("number of selected pokemon: " + count);
+        existingSubmitButton.disabled = count < 6;
+    }
 
-    const observer = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-            if (
-                mutation.type === "attributes" &&
-                mutation.target.classList.contains("team")
-            ) {
-                updateSelectedMonCount();
-                break;
-            }
-        }
-    });
+    syncSubmitButton();
 
-    observer.observe(document.body, {
-        attributes: true,
+    new MutationObserver(() => {
+        syncSubmitButton();
+    }).observe(pokemonCount, {
+        childList: true,
         subtree: true,
-        attributeFilter: ["class"]
+        characterData: true
     });
 
     // Add a click event listener to the button
