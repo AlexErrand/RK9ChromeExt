@@ -67,6 +67,19 @@ export function main() {
     var existingAddButton = document.getElementById("add");
     var existingSubmitButton = document.getElementById("submit");
 
+    function getSelectedTeamCount() {
+        return document.querySelectorAll(".team.btn-success").length;
+    }
+
+    function logSelectedTeamCount() {
+        const count = getSelectedTeamCount();
+        console.log("number of selected teams: " + count);
+    }
+
+    // run once on page load / refresh
+    logSelectedTeamCount();
+
+
     // Add a click event listener to the button
     showDownButton.addEventListener("click", async function () {
         // Disable the "New Button"
@@ -234,7 +247,7 @@ async function showValidationOverlay(convertedPokemons) {
         loadingJingle.play();
         loadingJingle.loop = true;
         validationOverlay.classList.add("rk9-ext-hidden");
-        setTimeout(function() {
+        setTimeout(function () {
             validationOverlay.style.display = "none";
         }, 300); // Wait for transition to complete
         allowSubmission = true;
@@ -248,7 +261,7 @@ async function showValidationOverlay(convertedPokemons) {
         loadingJingle.currentTime = 0;
         // Handle the "Cancel" button click
         validationOverlay.classList.add("rk9-ext-hidden");
-        setTimeout(function() {
+        setTimeout(function () {
             validationOverlay.style.display = "none";
         }, 300); // Wait for transition to complete
         // Handle the cancellation as needed
@@ -361,12 +374,12 @@ function getPokemonSpriteUrl(pokemonName) {
         // Fallback to Pokeball GIF if Pokemon not found
         return "https://media.tenor.com/8vuqpD3Ir-IAAAAC/catching-pokemon.gif";
     }
-    
+
     // Check if we have a custom sprite link
     if (spritesLink[pokemonId]) {
         return spritesLink[pokemonId];
     }
-    
+
     // Extract the number part (before the underscore)
     var dataNumber = pokemonId.split("_")[0];
     return "https://www.serebii.net/scarletviolet/pokemon/new/" + dataNumber + ".png";
@@ -464,7 +477,7 @@ async function fetchPokepasteContent(url) {
         const response = await fetch(url);
         if (!response.ok) {
             throw new Error("Failed to fetch PokePaste content");
-            
+
         }
 
         const data = await response.json();
@@ -595,10 +608,10 @@ async function addPokemons(convertedPokemons) {
     // Process first Pokémon (already added, just need to set values)
     var pokemon = convertedPokemons[0];
     var pokemonStartTime = new Date().getTime();
-    
+
     // Update loading sprite to show current Pokemon
     updateLoadingPokemonSprite(pokemon);
-    
+
     // Validate IDs exist in RK9 maps
     var ids = validatePokemonIds(pokemon);
     await setPokemonValues(firstPokeToken, pokemon, ids);
@@ -609,7 +622,7 @@ async function addPokemons(convertedPokemons) {
     for (let i = 1; i < convertedPokemons.length; i++) {
         pokemon = convertedPokemons[i];
         pokemonStartTime = new Date().getTime();
-        
+
         // Update loading sprite to show current Pokemon
         updateLoadingPokemonSprite(pokemon);
 
@@ -625,7 +638,7 @@ async function addPokemons(convertedPokemons) {
 
         console.log('Pokemon "' + pokemon.name + '" submitted (' + getDuration(pokemonStartTime) + ')');
     }
-    
+
     console.log("Total time taken for submission: " + getDuration(startTime));
     hideLoadingOverlay(); // Hide loading overlay when the process is complete
 }
