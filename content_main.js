@@ -67,18 +67,26 @@ export function main() {
     var existingAddButton = document.getElementById("add");
     var existingSubmitButton = document.getElementById("submit");
 
-    function getSelectedTeamCount() {
-        return document.querySelectorAll(".team.btn-success").length;
+    function updateSelectedMonCount() {
+        const count = document.querySelectorAll(".team.btn-success").length;
+        console.log("number of selected pokemon: " + count);
     }
 
-    function logSelectedTeamCount() {
-        const count = getSelectedTeamCount();
-        console.log("number of selected teams: " + count);
-    }
+    // initial count
+    window.addEventListener("load", () => {
+        updateSelectedMonCount();
+    });
 
-    // run once on page load / refresh
-    logSelectedTeamCount();
+    // observe class changes anywhere in the page
+    const observer = new MutationObserver(() => {
+        updateSelectedMonCount();
+    });
 
+    observer.observe(document.body, {
+        attributes: true,
+        subtree: true,
+        attributeFilter: ["class"]
+    });
 
     // Add a click event listener to the button
     showDownButton.addEventListener("click", async function () {
