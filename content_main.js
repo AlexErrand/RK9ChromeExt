@@ -77,9 +77,16 @@ export function main() {
         updateSelectedMonCount();
     });
 
-    // observe class changes anywhere in the page
-    const observer = new MutationObserver(() => {
-        updateSelectedMonCount();
+    const observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            if (
+                mutation.type === "attributes" &&
+                mutation.target.classList.contains("team")
+            ) {
+                updateSelectedMonCount();
+                break;
+            }
+        }
     });
 
     observer.observe(document.body, {
