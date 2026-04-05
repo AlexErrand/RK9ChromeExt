@@ -26,6 +26,7 @@ var languageOption = '';
 const loadingJingle = new Audio(chrome.runtime.getURL("assets/audio/teamloading.mp3"));
 loadingJingle.loop = true;
 const finishedJingle = new Audio(chrome.runtime.getURL("assets/audio/pokecenterjingle.mp3"));
+finishedJingle.volume = 0.05;
 var cookies = document.cookie;
 console.log("Cookie:", cookies);
 
@@ -68,6 +69,8 @@ export function main() {
     var existingSubmitButton = document.getElementById("submit");
     var pokemonCount = document.getElementById("pokemoncount");
 
+
+    //code to sync the submit button with the number of selected pokemon, if the number of selected pokemon is less than 6, the submit button should be disabled as teams with less than 6 pokemon should not be submitted
     function getPokemonCount() {
         return Number(pokemonCount.textContent);
     }
@@ -252,6 +255,7 @@ async function showValidationOverlay(convertedPokemons) {
     continueButton.className = "rk9-ext-button primary";
     continueButton.addEventListener("click", function () {
         // Handle the "Continue" button click
+        loadingJingle.volume = 0.01;
         loadingJingle.play();
         loadingJingle.loop = true;
         validationOverlay.classList.add("rk9-ext-hidden");
@@ -289,6 +293,7 @@ async function showValidationOverlay(convertedPokemons) {
 
 async function showConfirmationOverlay() {
     loadingJingle.pause()
+    finishedJingle.volume = 0.01;
     finishedJingle.play();
     const confirmationOverlay = document.createElement("div");
     confirmationOverlay.id = "confirmation-overlay";
