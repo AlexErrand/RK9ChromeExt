@@ -461,18 +461,6 @@ function hideLoadingOverlay() {
     }
 }
 
-const neutralStatAlignments = new Set(['Hardy', 'Docile', 'Bashful', 'Quirky']);
-
-function toSubmittedStatAlignment(nature) {
-    if (!nature) {
-        return nature;
-    }
-    if (neutralStatAlignments.has(nature)) {
-        return 'Serious';
-    }
-    return nature;
-}
-
 function getStats(poke, evs, nat) {
     var ret = { 'hp': 0, 'atk': 0, 'def': 0, 'spa': 0, 'spd': 0, 'spe': 0 };
 
@@ -572,7 +560,7 @@ async function convertShowDownList(paste) {
             pokemon.item = item;
             pokemon.ability = ability;
             pokemon.stats = stats;
-            pokemon.statAlignment = toSubmittedStatAlignment(nature);
+            pokemon.statAlignment = nature;
             pokemon.moves = pokes[i].moves;
 
             pokemon.validations = validatePokemon(pokemon);
