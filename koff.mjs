@@ -11,13 +11,11 @@ var Pokemon = class {
     p.gender = obj.gender;
     p.item = obj.item;
     p.ability = obj.ability;
-    p.level = obj.level;
     p.shiny = obj.shiny;
     p.happiness = obj.happiness;
     p.nature = obj.nature;
     p.evs = obj.evs;
     p.ivs = obj.ivs;
-    p.teraType = obj.teraType;
     p.dynamaxLevel = obj.dynamaxLevel;
     p.gigantamax = obj.gigantamax;
     p.pokeball = obj.pokeball;
@@ -45,10 +43,6 @@ var Pokemon = class {
       str += `Ability: ${this.ability}
 `;
     }
-    if (!Number.isNaN(this.level)) {
-      str += `Level: ${this.level}
-`;
-    }
     if (this.shiny === true) {
       str += `Shiny: Yes
 `;
@@ -67,10 +61,6 @@ var Pokemon = class {
     }
     if (this.gigantamax === true) {
       str += `Gigantamax: Yes
-`;
-    }
-    if (this.teraType) {
-      str += `Tera Type: ${this.teraType}
 `;
     }
     if (this.evs) {
@@ -294,13 +284,11 @@ var _ShowdownParser = class {
     const propNames = [
       "nature",
       "ability",
-      "level",
       "shiny",
       "happiness",
       "pokeball",
       "dynamaxLevel",
-      "gigantamax",
-      "teraType"
+      "gigantamax"
     ];
     return propNames.some(function(key) {
       const matches = _ShowdownParser.regexes[key].exec(line);
@@ -310,8 +298,6 @@ var _ShowdownParser = class {
       let value = matches[1].trim();
       if (key === "happiness") {
         value = clamp(parseInt(value), 0, 255);
-      } else if (key === "level") {
-        value = clamp(parseInt(value), 1, 100);
       } else if (key === "dynamaxLevel") {
         value = clamp(parseInt(value), 0, 10);
       } else if (key.match(/^(shiny|gigantamax)$/i)) {
@@ -352,13 +338,11 @@ ShowdownParser.regexes = {
   move: /^[-~]\s?(.*)$/i,
   nature: /^(.*)\s+Nature$/,
   ability: /^(?:Ability|Trait):\s?(.*)$/i,
-  level: /^Level:\s?([0-9]{1,3})$/i,
   shiny: /^Shiny:\s?(Yes|No)$/i,
   happiness: /^(?:Happiness|Friendship):\s?([0-9]{1,3})$/i,
   pokeball: /^(?:Pokeball|Ball):\s?(.*)$/i,
   dynamaxLevel: /^Dynamax Level:\s?([0-9]{1,2})$/i,
-  gigantamax: /^Gigantamax:\s?(Yes|No)$/i,
-  teraType: /^Tera Type:\s?(.*)$/i
+  gigantamax: /^Gigantamax:\s?(Yes|No)$/i
 };
 
 // src/Koffing.ts

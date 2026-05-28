@@ -4,8 +4,8 @@ import { Natures } from './natures.js';
 import { Abilities } from './abilities.js';
 import { HeldItems } from './heldItems.js';
 import { Moves } from './moves.js';
-import { PokeTranslator } from './TranslatorPokes.js';
-import { SpritesLink } from './sprites.js';
+import { PokeTranslatorChampions } from './TranslatorPokesChampions.js';
+import { ChampionsMegaOnlyAbilities } from './championsMegaOnlyAbilities.js';
 
 // Global variables
 var pokedex = Pokedex();
@@ -13,10 +13,10 @@ var natures = Natures();
 var abilities = Abilities();
 var moves = Moves();
 var heldItems = HeldItems();
-var pokeTranslator = PokeTranslator();
-var spritesLink = SpritesLink();
+var pokeTranslator = PokeTranslatorChampions();
+var championsMegaOnlyAbilities = ChampionsMegaOnlyAbilities();
 var pokemonMap = '';
-var teraMap = '';
+var statAlignmentMap = '';
 var abilityMap = '';
 var itemMap = '';
 var moveMap = '';
@@ -25,10 +25,13 @@ var allowSubmission = false;
 var languageOption = '';
 const loadingJingle = new Audio(chrome.runtime.getURL("assets/audio/teamloading.mp3"));
 loadingJingle.loop = true;
+loadingJingle.volume = 0.02;
 const finishedJingle = new Audio(chrome.runtime.getURL("assets/audio/pokecenterjingle.mp3"));
-finishedJingle.volume = 0.05;
+finishedJingle.volume = 0.02;
 var cookies = document.cookie;
 console.log("Cookie:", cookies);
+
+const CHAMPIONS_LEVEL = 50;
 
 var Pokemon = class {
     constructor() {
@@ -41,9 +44,8 @@ var Pokemon = class {
         p.nickname = obj.nickname;
         p.item = obj.item;
         p.ability = obj.ability;
-        p.level = obj.level;
         p.stats = obj.stats;
-        p.teraType = obj.teraType;
+        p.statAlignment = obj.statAlignment;
         p.moves = Array.isArray(obj.moves) ? obj.moves : [];
         p.validations = Array.isArray(obj.validations) ? obj.validations : [];
         return p;
@@ -157,10 +159,11 @@ export function main() {
         updateButtonState();
 
         convertButton.addEventListener("click", async function () {
+            allowSubmission = false;
             try {
-                var [convertedPokemons, hasValidations] = await convertShowDownList(showDownListBox.value);
+                var [convertedPokemons, hasValidations, hasBlockingValidations] = await convertShowDownList(showDownListBox.value);
                 if (hasValidations) {
-                    await showValidationOverlay(convertedPokemons);
+                    await showValidationOverlay(convertedPokemons, hasBlockingValidations);
                 } else {
                     allowSubmission = true;
                 }
@@ -202,7 +205,7 @@ export function main() {
     existingAddButton.parentNode.insertBefore(showDownButton, existingAddButton.nextSibling);
 }
 
-async function showValidationOverlay(convertedPokemons) {
+async function showValidationOverlay(convertedPokemons, hasBlockingValidations) {
     loadingJingle.pause();
     const validationOverlay = document.createElement("div");
     validationOverlay.id = "validation-overlay";
@@ -212,12 +215,14 @@ async function showValidationOverlay(convertedPokemons) {
     container.className = "rk9-ext-overlay-container alert alert-warning";
 
     const title = document.createElement("p");
-    title.textContent = "Warning";
+    title.textContent = hasBlockingValidations ? "Cannot Submit" : "Warning";
     title.className = "rk9-ext-overlay-title warning";
     container.appendChild(title);
 
     const header = document.createElement("p");
-    header.textContent = "Some of your Pokemon may be the incorrect level. Please check the following:"
+    header.textContent = hasBlockingValidations
+        ? "Fix the following issues before submitting your team:"
+        : "Please check the following before submitting your team:";
     header.className = "rk9-ext-overlay-content";
     container.appendChild(header);
 
@@ -249,22 +254,23 @@ async function showValidationOverlay(convertedPokemons) {
     buttonContainer.className = "rk9-ext-button-container";
     container.appendChild(buttonContainer);
 
-    // Create "Continue" and "Cancel" buttons
-    const continueButton = document.createElement("button");
-    continueButton.textContent = "Continue";
-    continueButton.className = "rk9-ext-button primary";
-    continueButton.addEventListener("click", function () {
-        // Handle the "Continue" button click
-        loadingJingle.volume = 0.01;
-        loadingJingle.play();
-        loadingJingle.loop = true;
-        validationOverlay.classList.add("rk9-ext-hidden");
-        setTimeout(function () {
-            validationOverlay.style.display = "none";
-        }, 300); // Wait for transition to complete
-        allowSubmission = true;
-    });
-    buttonContainer.appendChild(continueButton);
+    var continueButton = null;
+    if (!hasBlockingValidations) {
+        continueButton = document.createElement("button");
+        continueButton.textContent = "Continue";
+        continueButton.className = "rk9-ext-button primary";
+        continueButton.addEventListener("click", function () {
+            loadingJingle.volume = 0.001;
+            loadingJingle.play();
+            loadingJingle.loop = true;
+            validationOverlay.classList.add("rk9-ext-hidden");
+            setTimeout(function () {
+                validationOverlay.style.display = "none";
+            }, 300);
+            allowSubmission = true;
+        });
+        buttonContainer.appendChild(continueButton);
+    }
 
     const cancelButton = document.createElement("button");
     cancelButton.textContent = "Cancel";
@@ -284,16 +290,16 @@ async function showValidationOverlay(convertedPokemons) {
     validationOverlay.appendChild(container);
     document.body.appendChild(validationOverlay);
 
-    // Wait for the user to click either button
-    await Promise.race([
-        createPromiseForButtonClick(continueButton),
-        createPromiseForButtonClick(cancelButton),
-    ]);
+    var buttonWaits = [createPromiseForButtonClick(cancelButton)];
+    if (!hasBlockingValidations) {
+        buttonWaits.push(createPromiseForButtonClick(continueButton));
+    }
+    await Promise.race(buttonWaits);
 }
 
 async function showConfirmationOverlay() {
     loadingJingle.pause()
-    finishedJingle.volume = 0.01;
+    finishedJingle.volume = 0.02;
     finishedJingle.play();
     const confirmationOverlay = document.createElement("div");
     confirmationOverlay.id = "confirmation-overlay";
@@ -380,22 +386,15 @@ async function showErrorOverlay(message) {
     await Promise.race([createPromiseForButtonClick(okButton)]);
 }
 
-// Helper function to get Pokemon sprite URL
+const RK9_BROADCAST_SPRITE_BASE = "https://storage.googleapis.com/files.rk9labs.com/sprites/broadcast/";
+
 function getPokemonSpriteUrl(pokemonName) {
     var pokemonId = pokeTranslator[pokemonName];
     if (!pokemonId) {
-        // Fallback to Pokeball GIF if Pokemon not found
         return "https://media.tenor.com/8vuqpD3Ir-IAAAAC/catching-pokemon.gif";
     }
 
-    // Check if we have a custom sprite link
-    if (spritesLink[pokemonId]) {
-        return spritesLink[pokemonId];
-    }
-
-    // Extract the number part (before the underscore)
-    var dataNumber = pokemonId.split("_")[0];
-    return "https://www.serebii.net/scarletviolet/pokemon/new/" + dataNumber + ".png";
+    return RK9_BROADCAST_SPRITE_BASE + pokemonId + ".png";
 }
 
 function showLoadingOverlay(pokemon) {
@@ -462,23 +461,39 @@ function hideLoadingOverlay() {
     }
 }
 
-function getStats(poke, ivs, evs, level, nat) {
+const neutralStatAlignments = new Set(['Hardy', 'Docile', 'Bashful', 'Quirky']);
+
+function toSubmittedStatAlignment(nature) {
+    if (!nature) {
+        return nature;
+    }
+    if (neutralStatAlignments.has(nature)) {
+        return 'Serious';
+    }
+    return nature;
+}
+
+function getStats(poke, evs, nat) {
     var ret = { 'hp': 0, 'atk': 0, 'def': 0, 'spa': 0, 'spd': 0, 'spe': 0 };
 
     var baseStats = pokedex[poke];
-    var nature = natures[nat];
+    if (!baseStats) {
+        return ret;
+    }
 
-    for (const [key, value] of Object.entries(baseStats)) {
+    var alignment = natures[nat] || { 'hp': 1, 'atk': 1, 'def': 1, 'spa': 1, 'spd': 1, 'spe': 1 };
+
+    for (const [key, base] of Object.entries(baseStats)) {
+        var statPoints = evs[key] || 0;
+
         if (key == 'hp') {
-            var stat = Math.floor(((((2 * baseStats.hp) + Math.floor(evs.hp / 4) + ivs.hp) * level) / 100) + level + 10);
-            ret['hp'] = stat;
+            ret['hp'] = base + statPoints + 75;
         } else {
-            var stat = Math.floor(Math.floor((((((2 * baseStats[key]) + Math.floor(evs[key] / 4) + ivs[key]) * level) / 100) + 5)) * nature[key]);
-            ret[key] = stat;
+            ret[key] = Math.floor((base + statPoints + 20) * alignment[key]);
         }
     }
 
-    return ret
+    return ret;
 }
 
 async function fetchPokepasteContent(url) {
@@ -526,6 +541,7 @@ async function convertShowDownList(paste) {
 
         convertedPokemons = [];
         var hasValidations = false;
+        var hasBlockingValidations = false;
         var parsedTeam = Koffing.parse(paste);
 
         var pokes = parsedTeam.teams[0].pokemon;
@@ -533,22 +549,9 @@ async function convertShowDownList(paste) {
         for (let i = 0; i < pokes.length; i++) {
             var name = pokes[i].name;
             var ability = pokes[i].ability;
-            var teraType = pokes[i].teraType;
             var nickname = pokes[i].nickname;
             var item = pokes[i].item
             var nature = pokes[i].nature;
-
-            var level = 100;
-            if (pokes[i].level) {
-                level = pokes[i].level;
-            }
-
-            var ivs = { 'hp': 31, 'atk': 31, 'def': 31, 'spa': 31, 'spd': 31, 'spe': 31 };
-            if (pokes[i].ivs) {
-                for (const [key, value] of Object.entries(pokes[i].ivs)) {
-                    ivs[key] = value;
-                }
-            }
 
             var evs = { 'hp': 0, 'atk': 0, 'def': 0, 'spa': 0, 'spd': 0, 'spe': 0 };
             if (pokes[i].evs) {
@@ -561,20 +564,20 @@ async function convertShowDownList(paste) {
                 ability = "As One";
             }
 
-            var stats = getStats(name, ivs, evs, level, nature);
+            var stats = getStats(name, evs, nature);
 
             var pokemon = new Pokemon()
             pokemon.name = name;
             pokemon.nickname = nickname;
             pokemon.item = item;
             pokemon.ability = ability;
-            pokemon.level = level;
             pokemon.stats = stats;
-            pokemon.teraType = teraType;
+            pokemon.statAlignment = toSubmittedStatAlignment(nature);
             pokemon.moves = pokes[i].moves;
 
             pokemon.validations = validatePokemon(pokemon);
             hasValidations = hasValidations || (pokemon.validations.length > 0);
+            hasBlockingValidations = hasBlockingValidations || pokemon.validations.some(isBlockingValidation);
 
             convertedPokemons.push(pokemon);
         }
@@ -584,7 +587,7 @@ async function convertShowDownList(paste) {
         console.log('Error converting list: ' + error.message);
         throw new Error(`Error converting this list`);
     }
-    return [convertedPokemons, hasValidations];
+    return [convertedPokemons, hasValidations, hasBlockingValidations];
 }
 
 async function addPokemons(convertedPokemons) {
@@ -609,8 +612,8 @@ async function addPokemons(convertedPokemons) {
     // Fetch all field maps sequentially (only once, not per Pokémon)
     if (pokemonMap == '')
         pokemonMap = await getRk9FieldMap(firstPokeToken, "pokemon");
-    if (teraMap == '')
-        teraMap = await getRk9FieldMap(firstPokeToken, "teratype");
+    if (statAlignmentMap == '')
+        statAlignmentMap = await getRk9FieldMap(firstPokeToken, "statalignment");
     if (abilityMap == '')
         abilityMap = await getRk9FieldMap(firstPokeToken, "ability");
     if (itemMap == '')
@@ -656,11 +659,52 @@ async function addPokemons(convertedPokemons) {
     hideLoadingOverlay(); // Hide loading overlay when the process is complete
 }
 
+function isBlockingValidation(validation) {
+    return validation.startsWith("Cannot submit:");
+}
+
+function getMegaAbilityValidationError(pokemon) {
+    if (!pokemon.ability) {
+        return null;
+    }
+
+    var megaOnlyAbilities = championsMegaOnlyAbilities[pokemon.name];
+    if (!megaOnlyAbilities) {
+        return null;
+    }
+
+    if (megaOnlyAbilities.includes(pokemon.ability)) {
+        return "Cannot submit: " + pokemon.name + " cannot have " + pokemon.ability + " (Mega Evolution ability only).";
+    }
+
+    return null;
+}
+
+function getMegaNameValidationError(pokemon) {
+    if (!pokemon.name) {
+        return null;
+    }
+
+    // Disallow Showdown-style mega suffixes anywhere after the base name.
+    // Examples: Charizard-Mega, Charizard-Mega-X, Charizard-Mega-Y
+    if (/-Mega(?:-|$)/i.test(pokemon.name)) {
+        return "Cannot submit: Mega forms are not allowed in Pokémon Champions (" + pokemon.name + "), please use the base form name for proper submission.";
+    }
+
+    return null;
+}
+
 function validatePokemon(pokemon) {
     var validations = [];
 
-    if (pokemon.level < 100) {
-        validations.push("Current level is " + pokemon.level);
+    var megaNameError = getMegaNameValidationError(pokemon);
+    if (megaNameError) {
+        validations.push(megaNameError);
+    }
+
+    var megaAbilityError = getMegaAbilityValidationError(pokemon);
+    if (megaAbilityError) {
+        validations.push(megaAbilityError);
     }
 
     return validations;
@@ -680,9 +724,11 @@ function validatePokemonIds(pokemon) {
     if (!(itemId in itemMap))
         itemId = '';
 
-    var teraType = pokemon.teraType;
-    if (!(pokemon.teraType in teraMap))
-        teraType = ''
+    var statAlignment = pokemon.statAlignment;
+    if (statAlignment === 'Naive' && 'Naïve' in statAlignmentMap)
+        statAlignment = 'Naïve';
+    else if (!(statAlignment in statAlignmentMap))
+        statAlignment = ''
 
     var move1Id = moves[pokemon.moves[0]];
     if (!(move1Id in moveMap))
@@ -701,7 +747,7 @@ function validatePokemonIds(pokemon) {
         pokemonId: pokemonId,
         abilityId: abilityId,
         itemId: itemId,
-        teraType: teraType,
+        statAlignment: statAlignment,
         move1Id: move1Id,
         move2Id: move2Id,
         move3Id: move3Id,
@@ -712,7 +758,7 @@ function validatePokemonIds(pokemon) {
 // Helper function to set all values for a Pokémon
 async function setPokemonValues(pokeToken, pokemon, ids) {
     await setValue(pokeToken, 'name', pokemon.nickname, 'Nickname');
-    await setValue(pokeToken, 'level', pokemon.level, 'Level');
+    await setValue(pokeToken, 'level', CHAMPIONS_LEVEL, 'Level');
     await setValue(pokeToken, 'hp', pokemon.stats.hp, 'HP');
     await setValue(pokeToken, 'attack', pokemon.stats.atk, 'Attack');
     await setValue(pokeToken, 'defense', pokemon.stats.def, 'Defense');
@@ -720,7 +766,7 @@ async function setPokemonValues(pokeToken, pokemon, ids) {
     await setValue(pokeToken, 'spdef', pokemon.stats.spd, 'Sp. Def');
     await setValue(pokeToken, 'speed', pokemon.stats.spe, 'Speed');
     await selectValue(pokeToken, 'pokemon', ids.pokemonId, 'Pokemon', pokemon.name);
-    await selectValue(pokeToken, 'teratype', ids.teraType, 'Tera Type', pokemon.teraType);
+    await selectValue(pokeToken, 'statalignment', ids.statAlignment, 'Stat Alignment', ids.statAlignment);
     await selectValue(pokeToken, 'ability', ids.abilityId, 'Ability', pokemon.ability);
     await selectValue(pokeToken, 'helditem', ids.itemId, 'Held Item', pokemon.item);
     await selectValue(pokeToken, 'move1', ids.move1Id, 'Move 1', pokemon.moves[0]);
@@ -905,48 +951,8 @@ function addDisclaimer() {
 }
 
 function updateSprites() {
-    // Get all the div elements with the class "pokemon"
-    var pokemonDivs = document.querySelectorAll(".pokemon");
-
-    // Loop through each div element
-    pokemonDivs.forEach(function (div) {
-        // Get the data attributes for data-number and data-form
-        var dataNumber = div.getAttribute("data-number");
-        var dataForm = div.getAttribute("data-form");
-        var imgElement = div.querySelector("img");
-
-        // Create a new img link based on data-number and data-form
-        if (dataNumber == null) {
-            // this is the sprites from the "Show Team List"
-            // existing link looks like: https://storage.googleapis.com/files.rk9labs.com/sprites/broadcast/987_000.png
-            var existingImgUrl = imgElement.src;
-            var url = new URL(existingImgUrl);
-            var pathParts = url.pathname.split('/');
-            // 987_000.png
-            var fileName = pathParts[pathParts.length - 1];
-            // 987_000
-            var fileNameWithoutExtension = fileName.replace(/\.[^/.]+$/, "");
-
-            // Extract the numeric part
-            var parts = fileNameWithoutExtension.split("_");
-            dataNumber = parts[0];
-            // default to 000 if rk9 doesn't provide us the form
-            dataForm = parts.length > 1 ? parts[1] : "000";
-        }
-
-        var newImgLink = "https://www.serebii.net/scarletviolet/pokemon/new/" + dataNumber + ".png";
-
-        var index = dataNumber + "_" + dataForm;
-        if (spritesLink[index])
-            newImgLink = spritesLink[index];
-
-        // Reset the margin height for the img
-        imgElement.src = newImgLink;
-        imgElement.className = "rk9-ext-pokemon-sprite";
-        // Clear any inline styles that might override our CSS
-        imgElement.style.height = "";
-        imgElement.style.width = "";
-        imgElement.style.maxWidth = "";
+    document.querySelectorAll(".pokemon img").forEach(function (imgElement) {
+        imgElement.classList.add("rk9-ext-pokemon-sprite");
     });
 }
 
