@@ -3,10 +3,14 @@
   "version": "1.6.1",
   "description": "RK9Labs Extension that allows you to use your showdown paste to submit your team for real life VGC events with ease.",
   "manifest_version": 3,
+  "permissions": ["storage"],
   "host_permissions": [
     "https://rk9.gg/teamlist/*",
     "https://*.pokemonshowdown.com/*"
   ],
+  "action": {
+    "default_popup": "popup.html"
+  },
   "content_scripts": [
     {
       "matches": ["https://rk9.gg/teamlist/index"],

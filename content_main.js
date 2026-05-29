@@ -7,6 +7,10 @@ import { Moves } from './moves.js';
 import { PokeTranslatorChampions } from './TranslatorPokesChampions.js';
 import { ChampionsMegaOnlyAbilities } from './championsMegaOnlyAbilities.js';
 
+// Constants
+const CHAMPIONS_LEVEL = 50;
+const AUDIO_VOLUME = 0.02;
+
 // Global variables
 var pokedex = Pokedex();
 var natures = Natures();
@@ -23,15 +27,30 @@ var moveMap = '';
 var convertedPokemons = [];
 var allowSubmission = false;
 var languageOption = '';
+var muteAudio = 1; // 1 = unmuted, 0 = muted
+
 const loadingJingle = new Audio(chrome.runtime.getURL("assets/audio/teamloading.mp3"));
 loadingJingle.loop = true;
-loadingJingle.volume = 0.02;
 const finishedJingle = new Audio(chrome.runtime.getURL("assets/audio/pokecenterjingle.mp3"));
-finishedJingle.volume = 0.02;
+
+// Load mute settings when content script initializes
+chrome.storage.local.get('muteAudio', (result) => {
+    muteAudio = result.muteAudio ? 0 : 1;
+    loadingJingle.volume = AUDIO_VOLUME * muteAudio;
+    finishedJingle.volume = AUDIO_VOLUME * muteAudio;
+});
+
+// Listen for mute changes from popup
+chrome.runtime.onMessage.addListener((request) => {
+    if (request.type === 'MUTE_CHANGED') {
+        muteAudio = request.isMuted ? 0 : 1;
+        loadingJingle.volume = AUDIO_VOLUME * muteAudio;
+        finishedJingle.volume = AUDIO_VOLUME * muteAudio;
+    }
+});
+
 var cookies = document.cookie;
 console.log("Cookie:", cookies);
-
-const CHAMPIONS_LEVEL = 50;
 
 var Pokemon = class {
     constructor() {
@@ -260,7 +279,6 @@ async function showValidationOverlay(convertedPokemons, hasBlockingValidations) 
         continueButton.textContent = "Continue";
         continueButton.className = "rk9-ext-button primary";
         continueButton.addEventListener("click", function () {
-            loadingJingle.volume = 0.001;
             loadingJingle.play();
             loadingJingle.loop = true;
             validationOverlay.classList.add("rk9-ext-hidden");
@@ -299,7 +317,6 @@ async function showValidationOverlay(convertedPokemons, hasBlockingValidations) 
 
 async function showConfirmationOverlay() {
     loadingJingle.pause()
-    finishedJingle.volume = 0.02;
     finishedJingle.play();
     const confirmationOverlay = document.createElement("div");
     confirmationOverlay.id = "confirmation-overlay";
