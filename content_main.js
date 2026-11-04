@@ -677,8 +677,8 @@ async function addPokemons(convertedPokemons) {
 
         console.log('Pokemon "' + pokemon.name + '" submitted (' + getDuration(pokemonStartTime) + ')');
     }
-
-    console.log("Total time taken for submission: " + getDuration(startTime));
+    
+    console.log("Totally taken " + getDuration(startTime));
     hideLoadingOverlay(); // Hide loading overlay when the process is complete
 }
 
@@ -800,7 +800,7 @@ async function setPokemonValues(pokeToken, pokemon, ids) {
 
 async function addSinglePokemon(pokemon) {
     // Define the URL and headers
-    const postUrl = "https://rk9.gg/teamlist/add";
+    const postUrl = "https://www.rk9.gg/teamlist/add";
     const headers = {
         "Cookie": cookies
     };
@@ -865,7 +865,7 @@ async function deleteSinglePokemon(pokemonElement) {
 async function setValue(pokemonId, field, value, fieldDisplay) {
     if (value) {
         // Define the URL and headers
-        const postUrl = "https://rk9.gg/teamlist/update";
+        const postUrl = "https://www.rk9.gg/teamlist/update";
         const headers = {
             "Cookie": cookies
         };
@@ -904,7 +904,7 @@ async function setValue(pokemonId, field, value, fieldDisplay) {
 async function selectValue(pokemonId, field, value, fieldDisplay, valueDisplay) {
     if (value) {
         // Define the URL and headers
-        const postUrl = "https://rk9.gg/teamlist/select?lang=" + languageOption;
+        const postUrl = "https://www.rk9.gg/teamlist/select?lang=" + languageOption;
         const headers = {
             "Cookie": cookies
         };
@@ -947,7 +947,7 @@ async function getRk9FieldMap(token, field) {
         storageValue = JSON.parse(sessionStorage.getItem(field));
     }
     else {
-        const getUrl = "https://rk9.gg/teamlist/select?lang=EN&id=" + token + "-" + field;
+        const getUrl = "https://www.rk9.gg/teamlist/select?lang=EN&id=" + token + "-" + field;
         const headers = {
             "Cookie": cookies
         };
