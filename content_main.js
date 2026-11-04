@@ -7,6 +7,10 @@ import { Moves } from './moves.js';
 import { PokeTranslatorChampions } from './TranslatorPokesChampions.js';
 import { ChampionsMegaOnlyAbilities } from './championsMegaOnlyAbilities.js';
 
+// Constants
+const CHAMPIONS_LEVEL = 50;
+const AUDIO_VOLUME = 0.02;
+
 // Global variables
 var pokedex = Pokedex();
 var natures = Natures();
@@ -23,15 +27,30 @@ var moveMap = '';
 var convertedPokemons = [];
 var allowSubmission = false;
 var languageOption = '';
+var muteAudio = 1; // 1 = unmuted, 0 = muted
+
 const loadingJingle = new Audio(chrome.runtime.getURL("assets/audio/teamloading.mp3"));
 loadingJingle.loop = true;
-loadingJingle.volume = 0.02;
 const finishedJingle = new Audio(chrome.runtime.getURL("assets/audio/pokecenterjingle.mp3"));
-finishedJingle.volume = 0.02;
+
+// Load mute settings when content script initializes
+chrome.storage.local.get('muteAudio', (result) => {
+    muteAudio = result.muteAudio ? 0 : 1;
+    loadingJingle.volume = AUDIO_VOLUME * muteAudio;
+    finishedJingle.volume = AUDIO_VOLUME * muteAudio;
+});
+
+// Listen for mute changes from popup
+chrome.runtime.onMessage.addListener((request) => {
+    if (request.type === 'MUTE_CHANGED') {
+        muteAudio = request.isMuted ? 0 : 1;
+        loadingJingle.volume = AUDIO_VOLUME * muteAudio;
+        finishedJingle.volume = AUDIO_VOLUME * muteAudio;
+    }
+});
+
 var cookies = document.cookie;
 console.log("Cookie:", cookies);
-
-const CHAMPIONS_LEVEL = 50;
 
 var Pokemon = class {
     constructor() {
@@ -65,6 +84,12 @@ export function main() {
     var showDownButton = document.createElement("button");
     showDownButton.innerText = "Load Showdown List";
     showDownButton.className = "btn btn-sm btn-primary mx-2 rk9-ext-main-button";
+
+    // Create a new button element
+    var deleteAllButton = document.createElement("button");
+    deleteAllButton.innerText = "Delete All Pokémon";
+    deleteAllButton.className = "btn btn-danger mx-2";
+    deleteAllButton.disabled = document.querySelectorAll(".pokemon").length === 0;
 
     // Get a reference to the existing buttons
     var existingAddButton = document.getElementById("add");
@@ -201,7 +226,19 @@ export function main() {
         existingSubmitButton.parentNode.insertBefore(showDownContainer, existingSubmitButton.nextSibling);
     });
 
-    // Insert the new button after the existing button
+    // Add a click event listener to the button
+    deleteAllButton.addEventListener("click", async function () {
+        if (confirm("Are you sure you want to delete all Pokémon? This action cannot be undone.")) {
+            for (const pokemonElement of document.querySelectorAll(".pokemon")) {
+                await deleteSinglePokemon(pokemonElement);
+            }
+            deleteAllButton.disabled = true;
+            pokemonCount.textContent = "0";
+        }
+    });
+
+    // Insert the new buttons after the existing button
+    existingAddButton.parentNode.insertBefore(deleteAllButton, existingAddButton.nextSibling);
     existingAddButton.parentNode.insertBefore(showDownButton, existingAddButton.nextSibling);
 }
 
@@ -260,7 +297,6 @@ async function showValidationOverlay(convertedPokemons, hasBlockingValidations) 
         continueButton.textContent = "Continue";
         continueButton.className = "rk9-ext-button primary";
         continueButton.addEventListener("click", function () {
-            loadingJingle.volume = 0.001;
             loadingJingle.play();
             loadingJingle.loop = true;
             validationOverlay.classList.add("rk9-ext-hidden");
@@ -299,7 +335,6 @@ async function showValidationOverlay(convertedPokemons, hasBlockingValidations) 
 
 async function showConfirmationOverlay() {
     loadingJingle.pause()
-    finishedJingle.volume = 0.02;
     finishedJingle.play();
     const confirmationOverlay = document.createElement("div");
     confirmationOverlay.id = "confirmation-overlay";
@@ -789,6 +824,41 @@ async function addSinglePokemon(pokemon) {
         loadingJingle.pause();
         console.log("Error:", error.message);
         return "";
+    }
+}
+
+async function deleteSinglePokemon(pokemonElement) {
+    // Define the URL and headers
+    const postUrl = "https://rk9.gg/teamlist/delete";
+    const headers = {
+        "Cookie": cookies
+    };
+
+    const formData = new FormData();
+    formData.append("pokemonid", pokemonElement.id);
+
+    // Define the POST request options
+    const requestOptions = {
+        method: 'POST',
+        headers: new Headers(headers),
+        body: formData,
+    };
+
+    // Make the POST request
+    try {
+        const response = await fetch(postUrl, requestOptions);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        pokemonElement.style.transition = "opacity 1s ease";
+        pokemonElement.style.opacity = "0";
+        pokemonElement.addEventListener("transitionend", function () {
+            pokemonElement.remove();
+        }, { once: true });
+    } catch (error) {
+        console.log("Error:", error.message);
     }
 }
 
