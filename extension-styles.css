@@ -303,11 +303,14 @@
 .rk9-ext-pokemon-sprite {
     float: left;
     margin: 12px;
-    height: 128px;
-    width: auto;
-    max-width: none;
+    width: 128px !important;
+    height: 128px !important;
+    max-width: 128px !important;
+    max-height: 128px !important;
+    object-fit: contain;
+    object-position: center;
+    image-rendering: pixelated;
     image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
     transition: transform 0.2s ease;
 }
 
